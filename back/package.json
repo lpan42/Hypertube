@@ -1,0 +1,31 @@
+{
+  "name": "hypertube",
+  "version": "1.0.0",
+  "description": "3rd Project of web branch @42Paris",
+  "main": "index.js",
+  "scripts": {
+    "server": "nodemon src/index.js",
+    "front": "cd ../front && npm start",
+    "start": "concurrently --kill-others \"npm run server\" \"npm run front\""
+  },
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "express-fileupload": "^1.1.7-alpha.3",
+    "nodemon": "^2.0.4"
+  },
+  "author": "lpan",
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.9.0",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.9.5",
+    "concurrently": "^5.1.0"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  }
+}
