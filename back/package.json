@@ -4,14 +4,19 @@
   "description": "3rd Project of web branch @42Paris",
   "main": "index.js",
   "scripts": {
-    "server": "nodemon src/index.js",
+    "server": "nodemon --exec npx babel-node src/index.js",
     "front": "cd ../front && npm start",
     "start": "concurrently --kill-others \"npm run server\" \"npm run front\""
   },
   "dependencies": {
+    "bcrypt": "^4.0.1",
     "body-parser": "^1.19.0",
+    "crypto": "^1.0.1",
     "express": "^4.17.1",
     "express-fileupload": "^1.1.7-alpha.3",
+    "jsonwebtoken": "^8.5.1",
+    "moment": "^2.26.0",
+    "mysql": "^2.18.1",
     "nodemon": "^2.0.4"
   },
   "author": "lpan",

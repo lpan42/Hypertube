@@ -5,7 +5,7 @@ const connection = mysql.createPool({
     host: 'localhost',
     user: 'root',
     password: 'rootroot',
-    database: 'Hypertube',
+    database: 'hypertube',
     connectionLimit: 10,
     dateStrings : true,
     multipleStatements: true

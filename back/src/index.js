@@ -13,10 +13,10 @@ app.use((req, res, next) => {
   });
 
 // // include router
-// const userRoute = require('./routes/userRoute');
+const userRoute = require('./routes/userRoute');
 
 // // routing
-// app.use('/user/', userRoute);
+app.use('/user/', userRoute);
   
 const PORT = 8000;
 
