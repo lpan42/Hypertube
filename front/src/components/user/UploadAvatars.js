@@ -31,14 +31,12 @@ const useStyles = makeStyles(theme => ({
     },
   }));
   
-const UploadAvatars = () => {
+const UploadAvatars = ({updateAvatar}) => {
   const userContext = useContext(UserContext);
   const { user } = userContext;
   const classes = useStyles();
 
-  const [pic, setPic] = useState(null);
-  const [picName, setPicName] = useState(user.data.avatar ? user.data.avatar : null);
-  const [src, setSrc] = useState(user.data.avatar ? `${picName}` : null);
+  const [src, setSrc] = useState(user.data.avatar ? user.data.avatar : null);
 
   const checkPic = (file) => {
     const types = ['image/png', 'image/jpeg'];
@@ -54,18 +52,10 @@ const UploadAvatars = () => {
 
   const OnChange = (e) => {
     if(checkPic(e.target.files[0])){
-      setPic(e.target.files[0]);
       setSrc(URL.createObjectURL(e.target.files[0]));
-      setPicName(e.target.files[0].name);
+      updateAvatar(e.target.files[0]);
     }
   }
-  console.log(pic)
-  // const OnSubmit = (e) => {
-  //   e.preventDefault();
-  //   let formData = new FormData();
-  //   formData.append('file', pic);
-  //   // updateAvatar(formData);
-  // }
 
   return (
       <div className={classes.editAvatar}>
@@ -75,9 +65,7 @@ const UploadAvatars = () => {
             className={classes.largeAvatar}
         />
         <label htmlFor="contained-button-file">
-          <Button color="primary" component="span">
-            Upload
-          </Button>
+          <Button color="primary" component="span">Upload</Button>
         </label>
         <input
           accept="image/*"
@@ -85,30 +73,6 @@ const UploadAvatars = () => {
           id="contained-button-file"
           type="file" name="uploadPic" accept=".jpg,.png" onChange={OnChange}
         />
-         
-
-        {/* <Modal
-          className={classes.modal}
-          open={open}
-          onClose={handleClose}
-          closeAfterTransition
-          BackdropComponent={Backdrop}
-          BackdropProps={{
-            timeout: 500,
-          }}
-        > */}
-          {/* <Fade in={open}>
-            <div className={classes.paper}>
-                <div>preview</div>
-                {picName ? <img className={classes.preview} alt="upload Avatar" src={src}></img> : null}
-              <form onSubmit={OnSubmit}>
-                  <input type="file" name="uploadPic" accept=".jpg,.png" onChange={OnChange}></input>
-                  <br></br>
-                  <Button type="submit" color="primary" size="small" variant="contained">Change Avatar</Button>
-              </form>
-            </div>
-          </Fade> */}
-        {/* </Modal> */}
       </div>
   );
 }

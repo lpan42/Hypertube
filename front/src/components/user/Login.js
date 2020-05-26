@@ -28,7 +28,7 @@ const useStyles = makeStyles(theme => ({
     card: {
         marginTop: "8%",
         textAlign:"center",
-        backgroundColor: fade("#FFFFFF", 0.6),
+        backgroundColor: fade("#FFFFFF", 0.5),
         height:250,
         minWidth: 250,
         maxWidth:350,

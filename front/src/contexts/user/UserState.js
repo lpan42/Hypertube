@@ -101,8 +101,22 @@ const UserState = props => {
             })
         // }
     }
+    const uploadAvatar = async (formData) => {
+        setAuthToken(localStorage.token);
+        const config = {
+            headers: {'Content-Type': 'multipart/form-data'}
+        }
+        try{
+            await axios.post('/user/modify/avatar', formData, config);
+        }catch(err){
+            dispatch({
+                type: EDIT_ACCOUNT_FAIL,
+                payload: err.response.data.error
+            });
+        }
+    }
 
-    const editAccount = async (formData) => {
+    const editAccount = async (data) => {
         setAuthToken(localStorage.token);
         const config = {
             headers: {
@@ -110,7 +124,7 @@ const UserState = props => {
             }
         }
         try{
-            const result =  await axios.post('/user/modify/account', formData, config);
+            const result =  await axios.post('/user/modify/account', data, config);
             dispatch({
                 type: EDIT_ACCOUNT_SUCCESS,
                 payload: result.data.success
@@ -149,6 +163,7 @@ const UserState = props => {
                 loadUser,
                 logout,
                 editAccount,
+                uploadAvatar,
                 clearError,
                 clearSuccess,
             }}

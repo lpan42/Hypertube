@@ -1,4 +1,4 @@
-import React, {useEffect, useContext} from 'react';
+import React, {useEffect, useContext, useState} from 'react';
 import UserContext from '../../contexts/user/userContext';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -15,7 +15,7 @@ import UploadAvatar from './UploadAvatars';
 
 const useStyles = makeStyles(theme => ({
     card: {
-        textAlign:"center",
+        textAlign:"left",
         maxHeight:500,
         minWidth: 300,
         maxWidth: 600,
@@ -36,28 +36,36 @@ const useStyles = makeStyles(theme => ({
   
 const EditAccount = () => {
     const userContext = useContext(UserContext);
-    const { user, editAccount } = userContext;
+    const { user, editAccount,uploadAvatar } = userContext;
     const classes = useStyles();
-    const [language, setLanguage] = React.useState(user.data.language);
-
+    const [language, setLanguage] = useState(user.data.language);
+    const [avatar, setAvatar] = useState(null);
     useEffect(() => {
         user && (user.data.language = language);
         //eslint-disable-next-line
     }, [language]);
 
-    const languages = [ { value: "english" },{ value: "français" }];
+    const languages = [ 
+        { value: "english" },
+        { value: "français" }
+    ];
 
     const onSubmit =(e) => {
         e.preventDefault();
-        console.log(user.data)
-        //     editAccount(user);
+        if(avatar){
+            let formData = new FormData();
+            formData.append('file', avatar);
+            uploadAvatar(formData);
+            setAvatar(null);
+        }
+        editAccount(user.data);
     }
     return (
         <div className={classes.card}>
             <div className={classes.context}>
                 <Typography variant="h5" color="primary">Edit My Account</Typography>
                 <form className={classes.form} onSubmit={onSubmit}>
-                    <UploadAvatar />
+                    <UploadAvatar updateAvatar={setAvatar}/>
                     <br></br>
                     <TextField id="firstname" label="firstname" style = {{width: 110}}
                         InputProps={{

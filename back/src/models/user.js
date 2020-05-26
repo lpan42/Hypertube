@@ -30,6 +30,30 @@ export async function getUserInfoById(userid) {
     }
 }
 
+export async function getVisitInfoById(userid) {
+    try {
+        const result = await connection.query(`
+        SELECT users.id_user,username,firstname,lastname,avatar,language FROM users 
+        WHERE users.id_user = ?
+        `, userid);
+        if (result[0]) {
+            const user = {
+                id: result[0].id_user,
+                username: result[0].username,
+                firstname: result[0].firstname,
+                lastname: result[0].lastname,
+                avatar: result[0].avatar,
+                language: result[0].language,
+            };
+            return user;
+        } else {
+            return { err: "This user does not exist" };
+        }
+    } catch (err) {
+        throw new Error(err);
+    }
+}
+
 export async function verifyExistEmail(email, userid) {
     try {
         const result = await connection.query('SELECT email, id_user FROM users WHERE email = ?', email.toLowerCase());
@@ -51,23 +75,23 @@ export async function verifyExistUsername(username, userid) {
     }
 }
 
-export async function checkUsername(username){
-    try {
-        const result = await connection.query('SELECT email,username FROM users WHERE username = ?', username.toLowerCase());
-        return result;
-    } catch (err) {
-        throw new Error(err);
-    }
-}
+// export async function checkUsername(username){
+//     try {
+//         const result = await connection.query('SELECT email,username FROM users WHERE username = ?', username.toLowerCase());
+//         return result;
+//     } catch (err) {
+//         throw new Error(err);
+//     }
+// }
 
-export async function checkEmail(email){
-    try {
-        const result = await connection.query('SELECT email,username FROM users WHERE email = ?', email.toLowerCase());
-        return result;
-    } catch (err) {
-        throw new Error(err);
-    }
-}
+// export async function checkEmail(email){
+//     try {
+//         const result = await connection.query('SELECT email,username FROM users WHERE email = ?', email.toLowerCase());
+//         return result;
+//     } catch (err) {
+//         throw new Error(err);
+//     }
+// }
 
 // export async function updateResetpwdLink(username, resetpwd_link){
 //     try {
@@ -190,17 +214,17 @@ export async function login(data) {
 //     }
 // }
 
-// export async function getPictureById(userid){
-//     try {
-//         const result = await connection.query(`
-//             SELECT path FROM pics 
-//             WHERE id_user = ?`, 
-//         userid);
-//         return result;
-//     } catch (err) {
-//         throw new Error(err);
-//     }
-// }
+export async function getAvatarById(userid){
+    try {
+        const result = await connection.query(`
+            SELECT avatar FROM users 
+            WHERE id_user = ?`, 
+        userid);
+        return result[0].avatar;
+    } catch (err) {
+        throw new Error(err);
+    }
+}
 
 // export async function addFame(fame, userid) {
 //     try {
@@ -249,21 +273,21 @@ export async function login(data) {
 //     }   
 // }
 
-// export async function modifyAccount(data, userid) {
-//     const email = await verifyExistEmail(data.email, userid);
-//     if(typeof(email) !== 'undefined'){
-//         return { err: 'This email has been used by another user' };
-//     }
-//     const username = await verifyExistUsername(data.username, userid);
-//     if(typeof(username) !== 'undefined'){
-//         return { err: 'Username has been taken.' };
-//     }
-//     try {
-//         await connection.query('UPDATE users SET ? WHERE id_user = ?', [data, userid]);
-//     } catch (err) {
-//         throw new Error(err);
-//     }
-// }
+export async function modifyAccount(data, userid) {
+    const email = await verifyExistEmail(data.email, userid);
+    if(typeof(email) !== 'undefined'){
+        return { err: 'This email has been used by another user' };
+    }
+    const username = await verifyExistUsername(data.username, userid);
+    if(typeof(username) !== 'undefined'){
+        return { err: 'Username has been taken.' };
+    }
+    try {
+        await connection.query('UPDATE users SET ? WHERE id_user = ?', [data, userid]);
+    } catch (err) {
+        throw new Error(err);
+    }
+}
 
 // export async function modify_profile(data) {
 //     try {
@@ -387,29 +411,21 @@ export async function login(data) {
 //     }
 // }
 
-// export async function uploadAvatar(userid, filename){
-//     const profile = await connection.query('SELECT id_user, avatar FROM profiles WHERE id_user = ?', userid);
-//     if (!profile[0]) {
-//         try {
-//             await connection.query('INSERT INTO profiles ( avatar, id_user) VALUES (?, ?)', [filename, userid]);
-//         } catch (err) {
-//             throw new Error(err);
-//         }
-//     }else{
-//         if(profile[0].avatar){
-//             let filename = profile[0].avatar.split("/");
-//             fs.unlink(`../front/public/images/${filename[filename.length-1]}`, err => {
-//                 console.log(err);
-//             });
-//         }
-//         try{
-//             await connection.query('UPDATE profiles SET avatar = ? WHERE id_user = ?', [filename, userid]);
-//         } 
-//         catch (err) {
-//             throw new Error(err);
-//         }
-//     }
-// }
+export async function uploadAvatar(userid, filename){
+    const current = await connection.query('SELECT id_user, avatar FROM users WHERE id_user = ?', userid);
+    if(current[0].avatar){
+        let name = current[0].avatar.split("/");
+        fs.unlink(`../front/public/images/${name[name.length-1]}`, err => {
+            if(err) console.log(err);
+        });
+    }
+    try{
+        await connection.query('UPDATE users SET avatar = ? WHERE id_user = ?', [filename, userid]);
+    } 
+    catch (err) {
+        throw new Error(err);
+    }
+}
 
 // export async function uploadPics(userid, filename){
 //     try {
@@ -425,7 +441,7 @@ export async function login(data) {
 //         console.log(err);
 //     });
 //     try{
-//         await connection.query('DELETE FROM pics WHERE path = ?', path);
+//         await connection.query('DELETE FROM users WHERE avatar = ?', path);
 //     }
 //     catch (err) {
 //         throw new Error(err);
