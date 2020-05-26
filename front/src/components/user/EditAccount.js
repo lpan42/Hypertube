@@ -15,7 +15,7 @@ import UploadAvatar from './UploadAvatars';
 
 const useStyles = makeStyles(theme => ({
     card: {
-        textAlign:"left",
+        textAlign:"center",
         maxHeight:500,
         minWidth: 300,
         maxWidth: 600,
