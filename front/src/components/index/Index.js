@@ -18,7 +18,7 @@ const Index = () => {
       }, []);
 
     return (
-        <div>
+        <div className="container">
             index
         </div>
     )

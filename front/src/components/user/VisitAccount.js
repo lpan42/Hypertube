@@ -56,9 +56,9 @@ const VisitAccount = ({userid}) => {
             setLoading(false);
         }catch(err){
             setError(err.response.data.error);
+            setLoading(false);
         }
     }
-    console.log(user)
     useEffect(() => {
         getAccount(userid);
         //eslint-disable-next-line
@@ -90,6 +90,9 @@ const VisitAccount = ({userid}) => {
             </div>
     </div>
     );
+
+    if (loading) return <Spinner />;
+
     return (
        <Fragment>
            {error ? <Typography variant="h6" color="primary">{error}</Typography> : accountInfo}

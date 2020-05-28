@@ -50,14 +50,17 @@ const UserState = props => {
         }
     }
     
-    const login = async formData =>{
+    const login = async (username,password) =>{
         const config = {
             headers: {
                 'Content-Type': 'application/json'
             }
         }
         try{
-            const result =  await axios.post('/user/login', formData, config);
+            const result =  await axios.post('/user/login', {
+                username:username,
+                password:password
+            }, config);
             dispatch({
                 type: LOGIN_SUCCESS,
                 payload: result.data
@@ -87,19 +90,19 @@ const UserState = props => {
     }
     
     const logout = async () => {
-        // setAuthToken(localStorage.token);
-        // try {
-        //     const result = await axios.get('/user/logout');
+        setAuthToken(localStorage.token);
+        try {
+            const result = await axios.get('/user/logout');
             dispatch({
                 type: LOGOUT, 
-                // payload: result.data.success
-        //     })
-        // } catch (err) {
-        //     dispatch({
-        //         type: NORMAL_ERROR,
-        //         payload: err.response.data.error
+                payload: result.data.success
             })
-        // }
+        } catch (err) {
+            dispatch({
+                type: NORMAL_ERROR,
+                payload: err.response.data.error
+            })
+        }
     }
     const uploadAvatar = async (formData) => {
         setAuthToken(localStorage.token);

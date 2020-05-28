@@ -46,7 +46,7 @@ export default (state, action) => {
                 ...state,
                 token: null,
                 user: null,
-                success: "User offline",
+                success: action.payload,
                 loading: false
             }
         case NORMAL_ERROR:

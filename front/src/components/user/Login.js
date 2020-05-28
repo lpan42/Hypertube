@@ -77,10 +77,7 @@ const Login = (props) => {
             toast.warning('All the fields need to be filled');
         }
         else{
-           login({
-               username,
-               password
-           });
+           login(username,password);
         }
     }
     return (

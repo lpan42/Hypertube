@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import Avatar from '@material-ui/core/Avatar';
+import Spinner from '../layout/Spinner';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -43,7 +44,7 @@ const useStyles = makeStyles(theme => ({
 const MyAccount = () => {
     const userContext = useContext(UserContext);
 
-    const { user, error, success, loadUser,clearSuccess, clearError } = userContext;
+    const { user, error, success, loadUser, clearSuccess, clearError,loading } = userContext;
     const [edit, setEdit] = useState(false);
     const classes = useStyles();
 
@@ -100,6 +101,9 @@ const MyAccount = () => {
         </div>
       </div>
     )
+
+    if (loading) return <Spinner />;
+
     return (
         <Fragment>
             { !edit ? accountInfo : <EditAccount />}

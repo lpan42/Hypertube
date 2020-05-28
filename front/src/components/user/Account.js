@@ -22,19 +22,19 @@ const useStyles = makeStyles(theme => ({
 const Account = ({match}) => {
   const userContext = useContext(UserContext);
 
-  const {user, loadUser} = userContext;
+  const {user, loadUser, token} = userContext;
   const classes = useStyles();
-
   useEffect(() => {
-    loadUser();
+    if(!token || !user)
+      loadUser();
       //eslint-disable-next-line
   }, []);
 
   return (
       <div className={classes.container}>
-       {+match.params.userid === (user && user.data.id) ? 
+       {match.params.userid === (user && user.data.id) ? 
                 <MyAccount /> : 
-                <VisitAccount userid={+match.params.userid}/>
+                <VisitAccount userid={match.params.userid}/>
             }
       </div>
   )
