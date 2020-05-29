@@ -32,9 +32,9 @@ const Account = ({match}) => {
 
   return (
       <div className={classes.container}>
-       {match.params.userid === (user && user.data.id) ? 
+       {match.params.username === (user && user.data.username) ? 
                 <MyAccount /> : 
-                <VisitAccount userid={match.params.userid}/>
+                <VisitAccount username={match.params.username}/>
             }
       </div>
   )

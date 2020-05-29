@@ -12,6 +12,9 @@ import InputAdornment from '@material-ui/core/InputAdornment';
 import MailOutlineIcon from '@material-ui/icons/MailOutline';
 import Typography from '@material-ui/core/Typography';
 import VpnKeyIcon from '@material-ui/icons/VpnKey';
+import Logo42 from '../../icons/42.png';
+import LogoGoogle from '../../icons/google.png';
+import LogoGithub from '../../icons/github.png';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 
 const useStyles = makeStyles(theme => ({
@@ -30,7 +33,7 @@ const useStyles = makeStyles(theme => ({
         marginTop: "3%",
         textAlign:"center",
         backgroundColor: fade("#FFFFFF", 0.5),
-        maxHeight:500,
+        maxHeight:600,
         minWidth: 275,
         maxWidth:350,
     },
@@ -39,6 +42,15 @@ const useStyles = makeStyles(theme => ({
             margin: theme.spacing(0.8),
           }
     },
+    div:{
+        display:"flex", 
+        alignItems:"center",
+        justifyContent:"center",
+    },
+    logoImg:{
+        height:"30px",
+        width:"30px",
+    }
   }));
 
 const Register = (props) => {
@@ -96,6 +108,10 @@ const Register = (props) => {
         }
     }
     
+    const authGithub = () => {
+        window.location = "http://localhost:8000/auth/github";
+    }
+
     return (
         <div className={classes.bg}>
             <Card className={classes.card}>
@@ -182,6 +198,13 @@ const Register = (props) => {
                         <br></br>
                         <Button type="submit" color="primary" variant="contained" style={{margin:"8px"}}>Register</Button>
                     </form>
+                   
+                    <div className={classes.div}>
+                        <Typography variant="subtitle2" color="secondary" component="span">Register with: </Typography>
+                        <Button color="primary" ><img className={classes.logoImg} src={Logo42}/></Button>
+                        <Button color="primary"><img className={classes.logoImg} src={LogoGoogle}/></Button>
+                        <Button color="primary" onClick={authGithub}><img className={classes.logoImg} src={LogoGithub}/></Button>
+                    </div>
                     <Typography variant="subtitle2" color="secondary">Have an account? <Link to='Login'>Login</Link></Typography>
                 </CardContent>
             </Card>

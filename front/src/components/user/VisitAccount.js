@@ -42,16 +42,16 @@ const useStyles = makeStyles(theme => ({
   }));
 
 
-const VisitAccount = ({userid}) => {
+const VisitAccount = ({username}) => {
     const classes = useStyles();
     const [user,setUser] = useState('');
     const [loading,setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    const getAccount = async (userid) => {
+    const getAccount = async (username) => {
         setAuthToken(localStorage.token);
         try{
-            const result =  await axios.get(`/user/account/${userid}`);
+            const result =  await axios.get(`/user/account/${username}`);
             setUser(result.data.data);
             setLoading(false);
         }catch(err){
@@ -60,7 +60,7 @@ const VisitAccount = ({userid}) => {
         }
     }
     useEffect(() => {
-        getAccount(userid);
+        getAccount(username);
         //eslint-disable-next-line
       }, []);
 

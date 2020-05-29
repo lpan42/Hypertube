@@ -12,6 +12,7 @@ import {
    LOGIN_SUCCESS,
    LOGIN_FAIL,
    LOAD_USER,
+   SET_TOKEN,
    AUTH_ERROR,
    LOGOUT,
    EDIT_ACCOUNT_FAIL,
@@ -104,6 +105,13 @@ const UserState = props => {
             })
         }
     }
+    const setToken = (token) => {
+        dispatch({
+            type: SET_TOKEN, 
+            payload: token
+        })
+    }
+
     const uploadAvatar = async (formData) => {
         setAuthToken(localStorage.token);
         const config = {
@@ -166,6 +174,7 @@ const UserState = props => {
                 loadUser,
                 logout,
                 editAccount,
+                setToken,
                 uploadAvatar,
                 clearError,
                 clearSuccess,

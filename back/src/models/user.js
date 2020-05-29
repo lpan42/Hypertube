@@ -5,13 +5,13 @@ const jwt = require('jsonwebtoken');
 const jwtSecret = require('../config/jwtSecret');
 
 const userSchema = new Schema({
-    _id : String,
     username:  { type: String, unique: true },
     firstname: String,
     lastname:   String,
     email:  { type: String, unique: true },
     avatar: { type: String, default: null },
     language: { type: String, default:"english" },
+    oAuthId: String,
 });
 
 userSchema.methods.generateToken = function() {

@@ -11,7 +11,10 @@ import Index from './components/index/Index';
 import Register from './components/user/Register';
 import Login from './components/user/Login';
 import Account from './components/user/Account';
+import OAuthValid from './components/user/OAuthValid';
+
 import UserState from './contexts/user/UserState';
+
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
 
@@ -68,7 +71,8 @@ const App = () => {
 						<div style={{minHeight:"100vh"}}>
 							<Switch>
 							<PrivateRoute exact path='/' component={Index} />
-							<PrivateRoute exact path='/account/:userid' component={Account} />
+							<PrivateRoute exact path='/account/:username' component={Account} />
+							<Route exact path='/oAuthValid' component={OAuthValid} />
 							<Route exact path='/register' component={Register} />
 							<Route exact path='/login' component={Login} />
 							</Switch>

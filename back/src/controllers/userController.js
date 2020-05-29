@@ -3,14 +3,14 @@ const User = require('../models/user');
 const crypto = require('crypto');
 const sanitize = require('mongo-sanitize');
 const passport = require("passport");
-const { v4: uuidv4 } = require('uuid');
-require("../middleware/passportAuth");
+// const { v4: uuidv4 } = require('uuid');
+require("../middleware/passportAuthLocal");
 
 export async function getAccount(req, res) {
-    if(req.userid === req.params.userid){
-        const user = await User.findOne({ _id: req.params.userid });
+    if(req.username === req.params.username){
+        const user = await User.findOne({ username: req.params.username });
         if(!user)
-            return res.status(400).json({ error: "UserId invalid" });   
+            return res.status(400).json({ error: "Username invalid" });   
         const result = {
             id: user._id,
             username: user.username,
@@ -25,9 +25,9 @@ export async function getAccount(req, res) {
         });
     }
     else{
-        const user = await User.findOne({ _id:req.params.userid });
+        const user = await User.findOne({ username:req.params.username });
         if(!user)
-            return res.status(400).json({ error: "UserId invalid" });   
+            return res.status(400).json({ error: "Username invalid" });   
         const result = {
             id: user._id,
             username: user.username,
@@ -50,7 +50,7 @@ export async function register(req, res) {
     if (check_username)
         return res.status(400).json({ error: "Username has been registered" });
     const newUser = new User({
-        _id: uuidv4(),
+        // _id: uuidv4(),
         username: sanitize(req.body.username.toLowerCase()),
         firstname: sanitize(req.body.firstname.toLowerCase()),
         lastname: sanitize(req.body.lastname.toLowerCase()),

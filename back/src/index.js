@@ -7,6 +7,7 @@ const passport = require('passport');
 const session = require("express-session");
 const User = require('./models/user');
 const userRoute = require('./routes/userRoute');
+const oAuthRoute = require('./routes/oAuthRoute');
 
 mongoose.connect("mongodb://localhost:27017/hypertube", {
   useNewUrlParser: true,
@@ -43,6 +44,8 @@ passport.deserializeUser(User.deserializeUser());
 
 // routing
 app.use('/user/', userRoute);
+app.use('/auth/', oAuthRoute);
+
 
 const PORT = 8000;
 

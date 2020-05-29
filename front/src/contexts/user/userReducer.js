@@ -10,7 +10,8 @@ import {
     EDIT_ACCOUNT_SUCCESS,
     NORMAL_ERROR,
     CLEAR_SUCCESS,
-    CLEAR_ERROR
+    CLEAR_ERROR,
+    SET_TOKEN
 } from '../types';
 
 
@@ -61,6 +62,14 @@ export default (state, action) => {
             return {
                 ...state,
                 ...action.payload,
+                loading: false,
+            }
+        case SET_TOKEN:
+            localStorage.setItem('token', action.payload);
+            return {
+                ...state,
+                token:action.payload,
+                // ...action.payload,
                 loading: false,
             }
         case EDIT_ACCOUNT_SUCCESS:
