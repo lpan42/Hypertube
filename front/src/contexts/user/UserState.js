@@ -86,6 +86,7 @@ const UserState = props => {
         } catch (err) {
             dispatch({
                 type: AUTH_ERROR, 
+                payload:err.response.data.error
             })
         }
     }

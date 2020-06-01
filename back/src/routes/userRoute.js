@@ -12,7 +12,7 @@ router.route('/auth').get(auth, userController.authUser);
 router.route('/logout').get(auth, userController.logout);
 
 //getInfo
-router.route('/account/:username').get(auth, userController.getAccount);
+router.route('/account/:userid').get(auth, userController.getAccount);
 
 //modify
 router.route('/modify/account').post(auth,userController.modifyAccount);

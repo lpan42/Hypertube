@@ -1,24 +1,29 @@
 import React,{ useContext, useEffect }  from 'react';
 import UserContext from '../../contexts/user/userContext';
 import { useHistory } from "react-router-dom";
+import { toast } from 'react-toastify';
 
-const OAuthValid = () => {
+const OAuthValid = ({match}) => {
     const userContext = useContext(UserContext);
     const history = useHistory();
-    const {user, loadUser, setToken,token} = userContext;
+    const {user, loadUser, setToken, token, error, clearError} = userContext;
+
     useEffect(() => {
-        let newToken = document.location.href.split("?token=");
-        newToken = newToken[newToken.length - 1];
+        let newToken = match.params.token;
         setToken(newToken);
-        loadUser();
+        if(token && !user){
+            loadUser();
+        }
+        if(error) {
+            history.push('/register');
+        }
         if(user && token){
             history.push('/');
         }
           //eslint-disable-next-line
-    }, [user]);
+    }, [token, user]);
     return (
-        <div>
-        </div>
+        <div></div>
     )
 }
 

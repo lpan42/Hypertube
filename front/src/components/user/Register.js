@@ -33,7 +33,7 @@ const useStyles = makeStyles(theme => ({
         marginTop: "3%",
         textAlign:"center",
         backgroundColor: fade("#FFFFFF", 0.5),
-        maxHeight:600,
+        maxHeight:550,
         minWidth: 275,
         maxWidth:350,
     },
@@ -46,6 +46,7 @@ const useStyles = makeStyles(theme => ({
         display:"flex", 
         alignItems:"center",
         justifyContent:"center",
+        margin:"10px",
     },
     logoImg:{
         height:"30px",
@@ -111,7 +112,9 @@ const Register = (props) => {
     const authGithub = () => {
         window.location = "http://localhost:8000/auth/github";
     }
-
+    const authGoogle = () => {
+        window.location = "http://localhost:8000/auth/google";
+    }
     return (
         <div className={classes.bg}>
             <Card className={classes.card}>
@@ -198,11 +201,10 @@ const Register = (props) => {
                         <br></br>
                         <Button type="submit" color="primary" variant="contained" style={{margin:"8px"}}>Register</Button>
                     </form>
-                   
                     <div className={classes.div}>
                         <Typography variant="subtitle2" color="secondary" component="span">Register with: </Typography>
                         <Button color="primary" ><img className={classes.logoImg} src={Logo42}/></Button>
-                        <Button color="primary"><img className={classes.logoImg} src={LogoGoogle}/></Button>
+                        <Button color="primary" onClick={authGoogle}><img className={classes.logoImg} src={LogoGoogle}/></Button>
                         <Button color="primary" onClick={authGithub}><img className={classes.logoImg} src={LogoGithub}/></Button>
                     </div>
                     <Typography variant="subtitle2" color="secondary">Have an account? <Link to='Login'>Login</Link></Typography>

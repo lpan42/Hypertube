@@ -3,14 +3,13 @@ const User = require('../models/user');
 const crypto = require('crypto');
 const sanitize = require('mongo-sanitize');
 const passport = require("passport");
-// const { v4: uuidv4 } = require('uuid');
 require("../middleware/passportAuthLocal");
 
 export async function getAccount(req, res) {
-    if(req.username === req.params.username){
-        const user = await User.findOne({ username: req.params.username });
+    if(req.params.userid === req.userid){
+        const user = await User.findOne({ _id: req.params.userid });
         if(!user)
-            return res.status(400).json({ error: "Username invalid" });   
+            return res.status(400).json({ error: "UserId invalid" });   
         const result = {
             id: user._id,
             username: user.username,
@@ -19,15 +18,15 @@ export async function getAccount(req, res) {
             email: user.email,
             avatar: user.avatar,
             language: user.language,
-        };
+        };  
         return res.status(200).json({
             data: result
         });
     }
     else{
-        const user = await User.findOne({ username:req.params.username });
+        const user = await User.findOne({ _id:req.params.userid });
         if(!user)
-            return res.status(400).json({ error: "Username invalid" });   
+            return res.status(400).json({ error: "UserId invalid" });   
         const result = {
             id: user._id,
             username: user.username,
@@ -50,7 +49,6 @@ export async function register(req, res) {
     if (check_username)
         return res.status(400).json({ error: "Username has been registered" });
     const newUser = new User({
-        // _id: uuidv4(),
         username: sanitize(req.body.username.toLowerCase()),
         firstname: sanitize(req.body.firstname.toLowerCase()),
         lastname: sanitize(req.body.lastname.toLowerCase()),
@@ -136,9 +134,17 @@ export async function modifyAccount(req,res){
     if(req.userid !== req.body.id){
         return res.status(400).json({ error: "This is not your account."});
     }
+    if(req.body.email){
+        const check_email = await User.findOne({email : req.body.email.toLowerCase(), _id: {$ne: req.userid}});
+        if (check_email)
+            return res.status(400).json({ error: "Email has been registered" });
+    }
+    const check_username = await User.findOne({ username : req.body.username.toLowerCase(), _id: {$ne: req.userid}});
+    if (check_username)
+        return res.status(400).json({ error: "Username has been registered" });
     let data = {
         username:sanitize(req.body.username.toLowerCase()),
-        email: sanitize(req.body.email.toLowerCase()),
+        email: req.body.email ? sanitize(req.body.email.toLowerCase()): null,
         firstname: sanitize(req.body.firstname.toLowerCase()),
         lastname: sanitize(req.body.lastname.toLowerCase()),
         language: sanitize(req.body.language.toLowerCase())

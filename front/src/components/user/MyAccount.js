@@ -49,23 +49,19 @@ const MyAccount = () => {
     const classes = useStyles();
 
     useEffect(() => {
-        loadUser();
-        if(error) {
-            toast.error(error);
-            clearError();
-            setTimeout(()=>{
-              window.location.reload(1);
-            }, 2000);
-        }
-        if(success) {
-          toast.success(success);
-          clearSuccess();
-          setTimeout(()=>{
-            window.location.reload(1);
-          }, 2000);
-        }
+      if(error) {
+          toast.error(error);
+          clearError();
+      }
+      if(success) {
+        toast.success(success);
+        clearSuccess();
+        setTimeout(()=>{
+          window.location.reload(1);
+        }, 2000);
+      }
           //eslint-disable-next-line
-      }, [error, success]);
+      },[user, error, success]);
 
     const onClick = () => {
         setEdit(true); 

@@ -1,7 +1,5 @@
 import React,{ useState, useContext, useEffect, Fragment }  from 'react';
-import axios from 'axios';
-import Spinner from '../layout/Spinner';
-import setAuthToken from '../../utils/setAuthToken';
+
 import { toast } from 'react-toastify';
 import toUpperCase from '../../utils/toUpperCase';
 import { makeStyles } from '@material-ui/core/styles';
@@ -42,61 +40,34 @@ const useStyles = makeStyles(theme => ({
   }));
 
 
-const VisitAccount = ({username}) => {
+const VisitAccount = ({accountInfo}) => {
     const classes = useStyles();
-    const [user,setUser] = useState('');
-    const [loading,setLoading] = useState(true);
-    const [error, setError] = useState('');
-
-    const getAccount = async (username) => {
-        setAuthToken(localStorage.token);
-        try{
-            const result =  await axios.get(`/user/account/${username}`);
-            setUser(result.data.data);
-            setLoading(false);
-        }catch(err){
-            setError(err.response.data.error);
-            setLoading(false);
-        }
-    }
-    useEffect(() => {
-        getAccount(username);
-        //eslint-disable-next-line
-      }, []);
-
-    const accountInfo = (
+    
+    return (
         <div className={classes.card}>
             <div className={classes.context}>
                 <Typography variant="h5" color="primary">User Account</Typography>
                 <br></br>
                 <Avatar 
-                    alt={user.username}
-                    src={user.avatar} 
+                    alt={accountInfo.username}
+                    src={accountInfo.avatar} 
                     className={classes.largeAvatar}
                 />
                 <br></br>
                 <Typography variant="h6" component="span" className={classes.text}>Username:</Typography>
-                <Typography variant="subtitle1" component="span">{toUpperCase(user.username)}</Typography> 
+                <Typography variant="subtitle1" component="span">{toUpperCase(accountInfo.username)}</Typography> 
                 <br></br>
                 <Typography variant="h6" component="span" className={classes.text}>Firstname:</Typography>
-                <Typography variant="subtitle1" component="span">{toUpperCase(user.firstname)}</Typography> 
+                <Typography variant="subtitle1" component="span">{toUpperCase(accountInfo.firstname)}</Typography> 
                 <br></br>
                 <Typography variant="h6" component="span" className={classes.text}>Lastname:</Typography>
-                <Typography variant="subtitle1" component="span">{toUpperCase(user.lastname)}</Typography>
+                <Typography variant="subtitle1" component="span">{toUpperCase(accountInfo.lastname)}</Typography>
                 
                 <br></br>
                 <Typography variant="h6" component="span" className={classes.text}>Language:</Typography>
-                <Typography variant="subtitle1" component="span">{toUpperCase(user.language)}</Typography> 
+                <Typography variant="subtitle1" component="span">{toUpperCase(accountInfo.language)}</Typography> 
             </div>
-    </div>
-    );
-
-    if (loading) return <Spinner />;
-
-    return (
-       <Fragment>
-           {error ? <Typography variant="h6" color="primary">{error}</Typography> : accountInfo}
-       </Fragment>
+        </div>
     )
 }
 

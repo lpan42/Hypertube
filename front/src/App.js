@@ -71,8 +71,8 @@ const App = () => {
 						<div style={{minHeight:"100vh"}}>
 							<Switch>
 							<PrivateRoute exact path='/' component={Index} />
-							<PrivateRoute exact path='/account/:username' component={Account} />
-							<Route exact path='/oAuthValid' component={OAuthValid} />
+							<PrivateRoute exact path='/account/:userid' component={Account} />
+							<Route exact path='/oAuthValid/:token' component={OAuthValid} />
 							<Route exact path='/register' component={Register} />
 							<Route exact path='/login' component={Login} />
 							</Switch>

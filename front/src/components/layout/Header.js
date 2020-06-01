@@ -29,7 +29,7 @@ const Header = ({ title }) => {
 
     const authLinks = (
         <Fragment>
-            <a href={`/account/${user && user.data.username}`}>
+            <a href={`/account/${user && user.data.id}`}>
                 <Avatar 
                     alt={user&&user.data.username}
                     src={user&&user.data.avatar} 

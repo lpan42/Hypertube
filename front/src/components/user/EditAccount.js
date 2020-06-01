@@ -12,6 +12,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import toUpperCase from '../../utils/toUpperCase';
 import LanguageIcon from '@material-ui/icons/Language';
 import UploadAvatar from './UploadAvatars';
+import { toast } from 'react-toastify';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -36,10 +37,11 @@ const useStyles = makeStyles(theme => ({
   
 const EditAccount = () => {
     const userContext = useContext(UserContext);
-    const { user, editAccount,uploadAvatar } = userContext;
+    const { user, editAccount,uploadAvatar, error, success, clearError,clearSuccess} = userContext;
     const classes = useStyles();
     const [language, setLanguage] = useState(user.data.language);
     const [avatar, setAvatar] = useState(null);
+
     useEffect(() => {
         user && (user.data.language = language);
         //eslint-disable-next-line
@@ -67,7 +69,7 @@ const EditAccount = () => {
                 <form className={classes.form} onSubmit={onSubmit}>
                     <UploadAvatar updateAvatar={setAvatar}/>
                     <br></br>
-                    <TextField id="firstname" label="firstname" style = {{width: 110}}
+                    <TextField id="firstname" label="Firstname" style = {{width: 110}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -78,7 +80,7 @@ const EditAccount = () => {
                         type="text" size="small" placeholder={user && user.data.firstname} 
                         onChange={e => user.data.firstname = e.target.value.toLowerCase()}
                     />
-                    <TextField id="lastname" label="lastname" style = {{width: 110}}
+                    <TextField id="lastname" label="Lastname" style = {{width: 110}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -90,7 +92,7 @@ const EditAccount = () => {
                         onChange={e => user.data.lastname = e.target.value.toLowerCase()}
                     />
                     <br></br>
-                    <TextField id="username" label="username" style = {{width: 240}}
+                    <TextField id="username" label="Username" style = {{width: 240}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -99,10 +101,10 @@ const EditAccount = () => {
                             ),
                         }}
                         type="text" size="small" placeholder={user && user.data.username} 
-                        onChange={e => user.data.username = e.target.value.toLowerCase()}
+                        onChange={e => {user.data.username = e.target.value.toLowerCase()}}
                     />
                     <br></br>
-                    <TextField id="email" label="email" style = {{width: 240}}
+                    <TextField id="email" label="Email" style = {{width: 240}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -122,9 +124,8 @@ const EditAccount = () => {
                             </InputAdornment>
                             ),
                         }}
-                        value={language}
-                        onChange={e => setLanguage(e.target.value)}
-                        >
+                        value={language} onChange={e => setLanguage(e.target.value)}
+                    >
                         {languages.map(option => (
                             <MenuItem key={option.value} value={option.value}>
                             {toUpperCase(option.value)}
