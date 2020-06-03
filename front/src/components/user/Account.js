@@ -27,8 +27,8 @@ const Account = ({match}) => {
   const classes = useStyles();
   const {user, loadUser, token} = userContext;
 
-  const [accountInfo,setAccountInfo] = useState('');
-  const [loading,setLoading] = useState(true);
+  const [accountInfo, setAccountInfo] = useState('');
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
   const getAccount = async (userid) => {
@@ -54,7 +54,7 @@ const Account = ({match}) => {
       <div className={classes.container}>
         {match.params.userid === (user && user.data.id) ? 
           <MyAccount /> : 
-          <VisitAccount accountInfo={accountInfo}/>
+          <VisitAccount accountInfo={accountInfo} />
         }
       </div>
   )

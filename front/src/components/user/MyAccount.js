@@ -9,6 +9,8 @@ import Button from '@material-ui/core/Button';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import Avatar from '@material-ui/core/Avatar';
 import Spinner from '../layout/Spinner';
+import EN from '../../languages/en.json';
+import FR from '../../languages/fr.json';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -46,6 +48,7 @@ const MyAccount = () => {
 
     const { user, error, success, loadUser, clearSuccess, clearError,loading } = userContext;
     const [edit, setEdit] = useState(false);
+    const [lang, setLang] = useState( user && user.data.language ==="english"? EN:FR);
     const classes = useStyles();
 
     useEffect(() => {
@@ -61,17 +64,16 @@ const MyAccount = () => {
         }, 2000);
       }
           //eslint-disable-next-line
-      },[user, error, success]);
+      },[error, success]);
 
     const onClick = () => {
         setEdit(true); 
     }
-  
     const accountInfo = (
       <div className={classes.card}>
         <div className={classes.context}>
-            <Button color="primary" style={{float:"right"}} onClick={onClick}>Edit</Button>
-            <Typography variant="h5" color="primary">My Account</Typography>
+            <Button color="primary" style={{float:"right"}} onClick={onClick}>{lang.account.edit}</Button>
+            <Typography variant="h5" color="primary">{lang.account.myaccount}</Typography>
             <br></br>
             <Avatar 
                 alt={user&&user.data.username}
@@ -79,20 +81,20 @@ const MyAccount = () => {
                 className={classes.largeAvatar}
             />
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>Username:</Typography>
+            <Typography variant="h6" component="span" className={classes.text}>{lang.account.username}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.username)}</Typography> 
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>Email:</Typography>
+            <Typography variant="h6" component="span" className={classes.text}>{lang.account.email}:</Typography>
             <Typography variant="subtitle1" component="span">{user && user.data.email}</Typography> 
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>Firstname:</Typography>
+            <Typography variant="h6" component="span" className={classes.text}>{lang.account.firstname}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.firstname)}</Typography> 
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>Lastname:</Typography>
+            <Typography variant="h6" component="span" className={classes.text}>{lang.account.lastname}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.lastname)}</Typography>
             
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>Language:</Typography>
+            <Typography variant="h6" component="span" className={classes.text}>{lang.account.language}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.language)}</Typography> 
         </div>
       </div>

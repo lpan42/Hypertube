@@ -13,6 +13,8 @@ import toUpperCase from '../../utils/toUpperCase';
 import LanguageIcon from '@material-ui/icons/Language';
 import UploadAvatar from './UploadAvatars';
 import { toast } from 'react-toastify';
+import EN from '../../languages/en.json';
+import FR from '../../languages/fr.json';
 
 const useStyles = makeStyles(theme => ({
     card: {
@@ -40,6 +42,7 @@ const EditAccount = () => {
     const { user, editAccount,uploadAvatar, error, success, clearError,clearSuccess} = userContext;
     const classes = useStyles();
     const [language, setLanguage] = useState(user.data.language);
+    const [lang, setLang] = useState( user && user.data.language ==="english"? EN:FR);
     const [avatar, setAvatar] = useState(null);
 
     useEffect(() => {
@@ -65,11 +68,11 @@ const EditAccount = () => {
     return (
         <div className={classes.card}>
             <div className={classes.context}>
-                <Typography variant="h5" color="primary">Edit My Account</Typography>
+                <Typography variant="h5" color="primary">{lang.account.editmyaccount}</Typography>
                 <form className={classes.form} onSubmit={onSubmit}>
-                    <UploadAvatar updateAvatar={setAvatar}/>
+                    <UploadAvatar updateAvatar={setAvatar} lang={lang}/>
                     <br></br>
-                    <TextField id="firstname" label="Firstname" style = {{width: 110}}
+                    <TextField id="firstname" label={lang.account.username} style = {{width: 110}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -80,7 +83,7 @@ const EditAccount = () => {
                         type="text" size="small" placeholder={user && user.data.firstname} 
                         onChange={e => user.data.firstname = e.target.value.toLowerCase()}
                     />
-                    <TextField id="lastname" label="Lastname" style = {{width: 110}}
+                    <TextField id="lastname" label={lang.account.firstname} style = {{width: 110}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -92,7 +95,7 @@ const EditAccount = () => {
                         onChange={e => user.data.lastname = e.target.value.toLowerCase()}
                     />
                     <br></br>
-                    <TextField id="username" label="Username" style = {{width: 240}}
+                    <TextField id="username" label={lang.account.lastname} style = {{width: 240}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -104,7 +107,7 @@ const EditAccount = () => {
                         onChange={e => {user.data.username = e.target.value.toLowerCase()}}
                     />
                     <br></br>
-                    <TextField id="email" label="Email" style = {{width: 240}}
+                    <TextField id="email" label={lang.account.email} style = {{width: 240}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -116,7 +119,7 @@ const EditAccount = () => {
                         onChange={e => user.data.email = e.target.value.toLowerCase()}
                     />
                     <br></br>
-                    <TextField select label="Language" style = {{width: 240}}
+                    <TextField select label={lang.account.language} style = {{width: 240}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -133,7 +136,7 @@ const EditAccount = () => {
                         ))}
                     </TextField>
                     <br></br>
-                    <Button type="submit" color="primary">Confirm</Button>
+                    <Button type="submit" color="primary">{lang.account.confirm}</Button>
                 </form>
             </div>
         </div>

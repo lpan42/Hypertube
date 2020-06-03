@@ -1,0 +1,18 @@
+{
+    "header" : {
+        "logout" : "logout"
+    },
+    "account" : {
+        "myaccount" : "My Account",
+        "edit": "Edit",
+        "username" : "Username",
+        "email" : "Email",
+        "firstname" : "Firstname",
+        "lastname" : "Lastname",
+        "language" : "Language",
+        "useraccount" : "User Account",
+        "editmyaccount" : "Edit My Account",
+        "upload" : "Upload",
+        "confirm" : "Confirm"
+    }
+}

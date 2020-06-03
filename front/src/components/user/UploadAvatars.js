@@ -4,6 +4,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import { toast } from 'react-toastify';
 import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
+import EN from '../../languages/en.json';
+import FR from '../../languages/fr.json';
 
 const useStyles = makeStyles(theme => ({
     editAvatar:{
@@ -31,7 +33,7 @@ const useStyles = makeStyles(theme => ({
     },
   }));
   
-const UploadAvatars = ({updateAvatar}) => {
+const UploadAvatars = ({updateAvatar, lang}) => {
   const userContext = useContext(UserContext);
   const { user } = userContext;
   const classes = useStyles();
@@ -65,7 +67,7 @@ const UploadAvatars = ({updateAvatar}) => {
             className={classes.largeAvatar}
         />
         <label htmlFor="contained-button-file">
-          <Button color="primary" component="span">Upload</Button>
+          <Button color="primary" component="span">{lang.account.upload}</Button>
         </label>
         <input
           accept="image/*"

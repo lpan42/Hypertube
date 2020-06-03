@@ -1,0 +1,18 @@
+{
+    "header": {
+        "logout" : "Se déconnecter"
+    },
+    "account" : {
+        "myaccount" : "Mon Compte",
+        "edit": "Éditer",
+        "username" : "Pseudo",
+        "email" : "Email",
+        "firstname" : "Prénom",
+        "lastname" : "Nom",
+        "language" : "Langue",
+        "useraccount" : "Compte d'utilisateur",
+        "editmyaccount" : "Modifier mon compte",
+        "upload" : "Télécharger",
+        "confirm" : "Confirmer"
+    }
+}

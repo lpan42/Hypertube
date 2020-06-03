@@ -1,5 +1,5 @@
 //rce from es7 react extension
-import React, { Fragment, useContext } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import PropTypes from 'prop-types';//shortcut impt 
 import { Link } from 'react-router-dom';//import from default does not need {}
 import UserContext from '../../contexts/user/userContext';
@@ -7,6 +7,8 @@ import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
+import EN from '../../languages/en.json';
+import FR from '../../languages/fr.json';
 
 const useStyles = makeStyles((theme) => ({
     logo: {
@@ -36,7 +38,13 @@ const Header = ({ title }) => {
                     className={classes.avatar}
                 />
             </a>
-            <Button href="#!" onClick={onLogout}>Logout</Button>
+            <Button href="#!" onClick={onLogout}>
+                {
+                    user&&user.data.language==="english" ?
+                    EN.header.logout :
+                    FR.header.logout
+                }
+            </Button>
         </Fragment>
     )
 
