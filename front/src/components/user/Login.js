@@ -97,7 +97,12 @@ const Login = (props) => {
     const authGithub = () => {
         window.location = "http://localhost:8000/auth/github";
     }
-    
+    const authGoogle = () => {
+        window.location = "http://localhost:8000/auth/google";
+    }
+    const auth42 = () => {
+        window.location = "http://localhost:8000/auth/42";
+    }
     return (
         <div className={classes.bg}>
             <Card className={classes.card}>
@@ -128,8 +133,8 @@ const Login = (props) => {
                     </form>
                     <div className={classes.div}>
                         <Typography variant="subtitle2" color="secondary" component="span">Login with: </Typography>
-                        <Button color="primary" ><img className={classes.logoImg} src={Logo42}/></Button>
-                        <Button color="primary"><img className={classes.logoImg} src={LogoGoogle}/></Button>
+                        <Button color="primary" onClick={auth42}><img className={classes.logoImg} src={Logo42}/></Button>
+                        <Button color="primary" onClick={authGoogle}><img className={classes.logoImg} src={LogoGoogle}/></Button>
                         <Button color="primary" onClick={authGithub}><img className={classes.logoImg} src={LogoGithub}/></Button>
                     </div>
                     <Typography variant="subtitle2" color="secondary">Don't have an account? <Link to='Register'>Register</Link></Typography>

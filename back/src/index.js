@@ -12,6 +12,7 @@ const oAuthRoute = require('./routes/oAuthRoute');
 mongoose.connect("mongodb://localhost:27017/hypertube", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
+  useFindAndModify:false,
   useCreateIndex:true,
 });
 const db = mongoose.connection;
@@ -38,8 +39,16 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(User.createStrategy());
-passport.serializeUser(User.serializeUser());
-passport.deserializeUser(User.deserializeUser());
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
+
+passport.serializeUser((user, done) => {
+  done(null, user); 
+});
+
+passport.deserializeUser((user, done) => {
+  done(null, user); 
+});
 
 
 // routing

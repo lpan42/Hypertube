@@ -47,6 +47,7 @@ const Account = ({match}) => {
       getAccount(match.params.userid);
       //eslint-disable-next-line
   },[]);
+  
   if (loading) return <Spinner />;
 
   return (

@@ -79,7 +79,7 @@ export async function login(req, res) {
                 avatar: user.avatar,
                 language: user.language,
             };
-            req.session.user = result;
+            // req.session.user = result;
             const token = user.generateToken();
             return res.status(200).json({
                 success: 'sucessfully login',
@@ -110,6 +110,7 @@ export async function authUser(req, res){
 }
 
 export async function logout(req, res) {
+    req.logout();
     req.session = null;
     return res.status(200).json({ success: 'user offline' });
 }
