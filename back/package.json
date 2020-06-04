@@ -39,6 +39,7 @@
     "passport-local-mongoose": "^6.0.1",
     "passport-oauth2": "^1.5.0",
     "torrent-stream": "^1.2.0",
+    "request": "^2.88.2",
     "uuid": "^8.1.0"
   },
   "author": "lpan",
