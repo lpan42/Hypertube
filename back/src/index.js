@@ -8,6 +8,7 @@ const session = require("express-session");
 const User = require('./models/user');
 const userRoute = require('./routes/userRoute');
 const oAuthRoute = require('./routes/oAuthRoute');
+const movieRoute = require('./routes/movieRoute');
 
 mongoose.connect("mongodb://localhost:27017/hypertube", {
   useNewUrlParser: true,
@@ -24,11 +25,11 @@ db.once("open", () => {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(fileUpload());
-// app.use((req, res, next) => {
-//     res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
-//     res.header( 'Access-Control-Allow-Credentials', 'true');
-//     next();
-//   });
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.header( 'Access-Control-Allow-Credentials', 'true');
+    next();
+  });
 app.use(
   session({
     secret: 'HyperTube',
@@ -39,13 +40,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(User.createStrategy());
-// passport.serializeUser(User.serializeUser());
-// passport.deserializeUser(User.deserializeUser());
-
 passport.serializeUser((user, done) => {
   done(null, user); 
 });
-
 passport.deserializeUser((user, done) => {
   done(null, user); 
 });
@@ -54,6 +51,7 @@ passport.deserializeUser((user, done) => {
 // routing
 app.use('/user/', userRoute);
 app.use('/auth/', oAuthRoute);
+app.use('/movie/', movieRoute);
 
 
 const PORT = 8000;

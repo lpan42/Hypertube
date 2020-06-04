@@ -12,7 +12,7 @@ import Register from './components/user/Register';
 import Login from './components/user/Login';
 import Account from './components/user/Account';
 import OAuthValid from './components/user/OAuthValid';
-
+import Movie from './components/movie/Movie';
 import UserState from './contexts/user/UserState';
 
 import { createMuiTheme } from '@material-ui/core/styles';
@@ -51,7 +51,7 @@ toast.configure({
 	  },
 	  info: {
 		contrastText: '#ffffff',
-		main: '#38618C',
+		main: '#000000',
 	  },
 	},
 	typography: {
@@ -72,6 +72,7 @@ const App = () => {
 							<Switch>
 							<PrivateRoute exact path='/' component={Index} />
 							<PrivateRoute exact path='/account/:userid' component={Account} />
+							<PrivateRoute exact path='/movie/:imdb_id' component={Movie} />
 							<Route exact path='/oAuthValid/:token' component={OAuthValid} />
 							<Route exact path='/register' component={Register} />
 							<Route exact path='/login' component={Login} />

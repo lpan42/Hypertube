@@ -79,7 +79,7 @@ export async function login(req, res) {
                 avatar: user.avatar,
                 language: user.language,
             };
-            // req.session.user = result;
+            req.session.user = result;
             const token = user.generateToken();
             return res.status(200).json({
                 success: 'sucessfully login',
@@ -150,9 +150,10 @@ export async function modifyAccount(req,res){
         lastname: sanitize(req.body.lastname.toLowerCase()),
         language: sanitize(req.body.language.toLowerCase())
     }
-    const result = await User.updateOne({_id:req.userid},{$set:data});
-    if (result.ok !== 1)
-        return res.status(400).json({ error:"Update failed" });
+    const result = await User.findOneAndUpdate({_id:req.userid},{$set:data},(err) => {
+        if(err) return res.status(400).json({ error:"Update failed" });
+    });
+    req.session.user = result;
     return res.status(200).json({ success: 'Account has been successfully updated' });
 }
 // export async function resetpwd(req,res){

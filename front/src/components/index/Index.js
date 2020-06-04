@@ -11,9 +11,6 @@ const Index = () => {
     
     useEffect(() => {
         loadUser();
-        if(!token && !user){
-           history.push('/register');
-        }
         //eslint-disable-next-line
       }, []);
 

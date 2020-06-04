@@ -30,7 +30,7 @@ passport.use(new GitHubStrategy(
           user.save(err => {if (err) return done(err);});
           return done(err,user);
         }else{
-          user = User.findOneAndUpdate({email : profile.email},{$set:{
+          user = await User.findOneAndUpdate({email : profile.email},{$set:{
             oAuthId: profile.id, 
             avatar: profile._json.avatar_url ? profile._json.avatar_url : null
           }},(err) => {
