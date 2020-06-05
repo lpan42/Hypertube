@@ -14,5 +14,12 @@
         "editmyaccount" : "Edit My Account",
         "upload" : "Upload",
         "confirm" : "Confirm"
+    },
+    "movie" : {
+        "imdbrating" : "IMDb Rating",
+        "country" : "Country",
+        "director" : "Director",
+        "actors" : "Actors",
+        "overview" : "Overview"
     }
 }

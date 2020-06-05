@@ -11,6 +11,8 @@ const userSchema = new Schema({
     email:  { type: String, unique: true },
     avatar: { type: String, default: null },
     language: { type: String, default:"english" },
+    watched: Array,
+    watchLater: Array,
     oAuthId: String,
 });
 

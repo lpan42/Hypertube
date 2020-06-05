@@ -9,15 +9,17 @@ import { fade } from '@material-ui/core/styles/colorManipulator';
 import Avatar from '@material-ui/core/Avatar';
 import EN from '../../languages/en.json';
 import FR from '../../languages/fr.json';
+import WatchLater from './WatchLater';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles(theme => ({
     card: {
         textAlign:"left",
-        maxHeight:400,
+        // maxHeight:400,
         minWidth: 300,
-        maxWidth: 600,
+        maxWidth: 800,
         marginTop: "2%",
-        backgroundColor: fade("#FFFFFF", 0.5),
+        backgroundColor: fade("#FFFFFF", 0.3),
     },
     context: {
       padding: "15px",
@@ -71,6 +73,9 @@ const VisitAccount = ({accountInfo}) => {
                 <br></br>
                 <Typography variant="h6" component="span" className={classes.text}>{lang.account.language}:</Typography>
                 <Typography variant="subtitle1" component="span">{toUpperCase(accountInfo.language)}</Typography> 
+                <br></br>
+                <Divider />
+                <WatchLater movies={accountInfo.watchLater} />
             </div>
         </div>
     )

@@ -18,6 +18,8 @@ export async function getAccount(req, res) {
             email: user.email,
             avatar: user.avatar,
             language: user.language,
+            watched:user.watched,
+            watchLater: user.watchLater,
         };  
         return res.status(200).json({
             data: result
@@ -34,6 +36,8 @@ export async function getAccount(req, res) {
             lastname: user.lastname,
             avatar: user.avatar,
             language: user.language,
+            watched:user.watched,
+            watchLater: user.watchLater,
         };
         return res.status(200).json({
             data: result
@@ -78,6 +82,8 @@ export async function login(req, res) {
                 email: user.email,
                 avatar: user.avatar,
                 language: user.language,
+                watched:user.watched,
+                watchLater: user.watchLater,
             };
             req.session.user = result;
             const token = user.generateToken();
@@ -103,6 +109,8 @@ export async function authUser(req, res){
         email: user.email,
         avatar: user.avatar,
         language: user.language,
+        watched:user.watched,
+        watchLater: user.watchLater,
     };
     return res.status(200).json({
         data: result,

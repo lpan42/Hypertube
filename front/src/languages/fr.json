@@ -14,5 +14,13 @@
         "editmyaccount" : "Modifier mon compte",
         "upload" : "Télécharger",
         "confirm" : "Confirmer"
+    },
+    "movie" : {
+        "imdbrating" : "IMDb Évaluation",
+        "country" : "Pays",
+        "director" : "Réalisateur",
+        "actors" : "Acteurs",
+        "overview" : "Présentation"
     }
+
 }

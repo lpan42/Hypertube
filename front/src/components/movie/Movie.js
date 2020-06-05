@@ -1,16 +1,16 @@
-import React, { useContext, useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState, Fragment } from 'react'
 import UserContext from '../../contexts/user/userContext';
 import setAuthToken from '../../utils/setAuthToken';
 import axios from 'axios';
-import moment from 'moment';
 import { toast } from 'react-toastify';
 import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import Card from '@material-ui/core/Card';
-import CardContent from '@material-ui/core/CardContent';
-import CardMedia from '@material-ui/core/CardMedia';
-import Button from '@material-ui/core/Button';
+import BookmarkIcon from '@material-ui/icons/Bookmark';
+import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
+import Box from '@material-ui/core/Box';
+import { withStyles } from '@material-ui/core/styles';
+import Tooltip from '@material-ui/core/Tooltip';
 import AccessTimeIcon from '@material-ui/icons/AccessTime';
 import TodayIcon from '@material-ui/icons/Today';
 import LanguageIcon from '@material-ui/icons/Language';
@@ -22,18 +22,16 @@ import FR from '../../languages/fr.json';
 const useStyles = makeStyles(theme => ({
     movieInfo:{
         width:"100%",
-        maxHeight:"70vh",
+        maxHeight:"75vh",
+        
         margin: "0",
         display:"flex",
         flexDirection: "row",
         justifyContent:"center",
         alignContent:"center",
-        backgroundColor: fade("#FFFFFF", 0.2),
-        // backgroundImage: `https://image.tmdb.org/t/p/orginal/${movieInfo.backdrop_path}`,
-        // backgroundPosition: 'center',
-        // backgroundSize: 'cover',
-        // backgroundRepeat: 'no-repeat',
+        backgroundColor: fade("#FFFFFF", 0.1),
     },
+
     poster: {
         height: "auto",
         width:"40vw",
@@ -43,12 +41,27 @@ const useStyles = makeStyles(theme => ({
     movieContent: {
         margin:"10px",
         display:"flex",
+        overflow: "auto",
         flexDirection: "column",
         justifyContent:"flex-start",
-        // alignContent:"center",
-        // alignItems:"center",
+
+    },
+    iconsDiv: {
+        display:"flex",
+        flexDirection: "raw",
+        justifyContent: "flex-start",
+        alignItems:"baseline",
     }
   }));
+
+  const MyTooltip = withStyles((theme) => ({
+    tooltip: {
+      backgroundColor: theme.palette.common.white,
+      color: theme.palette.primary.main,
+      boxShadow: theme.shadows[1],
+      fontSize: 12,
+    }, 
+  }))(Tooltip);
 
 const Movie = ({ match }) => {
     const userContext = useContext(UserContext);
@@ -57,12 +70,12 @@ const Movie = ({ match }) => {
     const history = useHistory();
     const classes = useStyles();
 
-    const [lang, setLang] = useState( user && user.data.language ==="english"? EN:FR);
+    const [lang, setLang] = useState(null);
     const [movieInfo, setMovieInfo] = useState("");
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
-    // console.log(match.params.imdb_id)
+    const [invalidId, setInvalidId] = useState("");
 
     const getMoiveInfo = async (imdb_id) => {
         try{
@@ -74,18 +87,20 @@ const Movie = ({ match }) => {
             setLoading(false);
         }catch(err){
             setError(err.response.data.error);
+            setInvalidId("Invalid IMDbId");
             setLoading(false);
         }
     }
     useEffect(() => {
         loadUser();
-        // getMoiveInfo(match.params.imdb_id);
         //eslint-disable-next-line
     }, []);
 
     useEffect(() => {
-        if(user)
+        if(user){
+            setLang( user && user.data.language === "english" ? EN:FR)
             getMoiveInfo(match.params.imdb_id);
+        }
         //eslint-disable-next-line
     }, [user]);
 
@@ -98,43 +113,101 @@ const Movie = ({ match }) => {
           toast.success(success);
           setSuccess('');
         }
-            //eslint-disable-next-line
+        //eslint-disable-next-line
     },[error, success]);
 
-    if (loading) return <Spinner />;
+    const addWatchLater = async() => {
+        setAuthToken(localStorage.token);
+        try{
+            const result =  await axios.post(`/movie/watchlater/add/${match.params.imdb_id}`);
+            setSuccess(result.data.success);
+            loadUser();
+        }catch(err){
+            setError(err.response.data.error);
+        }
+    }
 
-    return (
-        <div>
+    const removeWatchLater = async() => {
+        setAuthToken(localStorage.token);
+        try{
+            const result =  await axios.post(`/movie/watchlater/remove/${match.params.imdb_id}`);
+            setSuccess(result.data.success);
+            loadUser();
+        }catch(err){
+            setError(err.response.data.error);
+        }
+    }
+
+    if (loading) return <Spinner />;
+    
+    const watchLaterBtn = () => {
+        if(user && user.data.watchLater){
+            for(const key in user.data.watchLater){
+                if(user.data.watchLater[key].ImdbID === match.params.imdb_id){
+                    return (
+                        <MyTooltip title="Remove From WatchLater">
+                            <BookmarkIcon color="primary" onClick={removeWatchLater}/>
+                        </MyTooltip>
+                    )
+                }
+            }
+            return(
+                <MyTooltip title="Add To WatchLater">
+                    <BookmarkBorderIcon color="primary" onClick={addWatchLater}/>
+                </MyTooltip>
+            )
+        }
+    }
+    const moviePage = (
+        <Fragment>
             <div>player</div>
             <div className={classes.movieInfo}>
                 <img className={classes.poster} src={movieInfo.Poster} />
                 <div className={classes.movieContent}>
-                    <Typography variant="h4" component="p">{movieInfo.Title} ({movieInfo.Year})</Typography>
-                    <Typography variant="subtitle1">{movieInfo.Genre}</Typography>
-                    <Typography variant="subtitle1">
-                        {movieInfo.Rated}
-                        <TodayIcon />
-                            {moment(movieInfo.Released).format('DD/MM/YYYY')}
-                        <AccessTimeIcon />
-                            {movieInfo.Runtime}
-                        <LanguageIcon />
-                            {movieInfo.Language}
+                    <div style={{display:"flex",justifyContent:"space-between"}}>
+                        <Typography variant="h4" component="p" color="primary">{movieInfo.Title} ({movieInfo.Year})</Typography>
+                        {watchLaterBtn()}
+                    </div>
+                    <Typography variant="subtitle1" >
+                        <Box fontStyle="italic" color="secondary.light">
+                            {movieInfo.Tagline}
+                        </Box>
                     </Typography>
-                    <Typography variant="subtitle1">IMDb Rating: {movieInfo.imdbRating} / 10</Typography>
-                    <Typography variant="subtitle1">Countries: {movieInfo.Country} / 10</Typography>
-                    <Typography variant="subtitle1">Director: {movieInfo.Director}</Typography>
-                    <Typography variant="subtitle1">Writers: {movieInfo.Writer}</Typography>
-                    <Typography variant="subtitle1">Actors: {movieInfo.Actors}</Typography>
                     <br></br>
-                    <Typography variant="h6">Overview:</Typography>
+                    <div className={classes.iconsDiv}>
+                        <Typography variant="subtitle1">
+                                {movieInfo.Rated}
+                            <TodayIcon />
+                                {movieInfo.Released}
+                            <AccessTimeIcon />
+                                {movieInfo.Runtime}
+                            <LanguageIcon />
+                                {movieInfo.Language}
+                        </Typography>
+                    </div>
+                    <Typography variant="subtitle1">Genre: {movieInfo.Genre}</Typography>
+                    <Typography variant="subtitle1">{lang.movie.imdbrating}: {movieInfo.ImdbRating} / 10</Typography>
+                    <Typography variant="subtitle1">{lang.movie.country}: {movieInfo.Country}</Typography>
+                    <Typography variant="subtitle1">{lang.movie.director}: {movieInfo.Director}</Typography>
+                    <Typography variant="subtitle1">{lang.movie.actors}: {movieInfo.Actors}</Typography>
+                    <br></br>
+                    <Typography variant="subtitle1">{lang.movie.overview}:</Typography>
                     <Typography variant="subtitle1">
-                      {movieInfo.Plot}
+                    {movieInfo.Plot}
                     </Typography>
-                   
+                
                 </div>
             </div>
             <div>comments</div>
+        </Fragment>
+    )
 
+    return (
+        <div>
+        {invalidId ? 
+            <Typography>{invalidId}</Typography> : 
+            moviePage
+        }
         </div>
     )
 }

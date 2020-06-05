@@ -11,18 +11,20 @@ import Avatar from '@material-ui/core/Avatar';
 import Spinner from '../layout/Spinner';
 import EN from '../../languages/en.json';
 import FR from '../../languages/fr.json';
+import WatchLater from './WatchLater';
+import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles(theme => ({
     card: {
         textAlign:"left",
-        maxHeight:400,
+        // maxHeight:400,
         minWidth: 300,
-        maxWidth: 600,
+        maxWidth: 800,
         marginTop: "2%",
-        backgroundColor: fade("#FFFFFF", 0.5),
+        backgroundColor: fade("#FFFFFF", 0.3),
     },
     context: {
-      padding: "15px",
+      padding: "12px",
     },
     text: {
       paddingRight: "15px",
@@ -69,6 +71,7 @@ const MyAccount = () => {
     const onClick = () => {
         setEdit(true); 
     }
+
     const accountInfo = (
       <div className={classes.card}>
         <div className={classes.context}>
@@ -81,21 +84,23 @@ const MyAccount = () => {
                 className={classes.largeAvatar}
             />
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>{lang.account.username}:</Typography>
+            <Typography variant="subtitle1" component="span" className={classes.text}>{lang.account.username}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.username)}</Typography> 
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>{lang.account.email}:</Typography>
+            <Typography variant="subtitle1" component="span" className={classes.text}>{lang.account.email}:</Typography>
             <Typography variant="subtitle1" component="span">{user && user.data.email}</Typography> 
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>{lang.account.firstname}:</Typography>
+            <Typography variant="subtitle1" component="span" className={classes.text}>{lang.account.firstname}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.firstname)}</Typography> 
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>{lang.account.lastname}:</Typography>
+            <Typography variant="subtitle1" component="span" className={classes.text}>{lang.account.lastname}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.lastname)}</Typography>
-            
             <br></br>
-            <Typography variant="h6" component="span" className={classes.text}>{lang.account.language}:</Typography>
+            <Typography variant="subtitle1" component="span" className={classes.text}>{lang.account.language}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.language)}</Typography> 
+            <br></br>
+            <Divider />
+            <WatchLater movies={user && user.data.watchLater} />
         </div>
       </div>
     )

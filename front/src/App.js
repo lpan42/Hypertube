@@ -35,6 +35,7 @@ toast.configure({
 	  },//red
 	  secondary: {
 		main: '#000000',
+		light:'#808080',
 		contrastText: '#ffffff',
 	  },//black
 	  error: {
@@ -49,10 +50,10 @@ toast.configure({
 		main: '#F6BD60',
 		contrastText: '#ffffff',
 	  },
-	  info: {
-		contrastText: '#ffffff',
-		main: '#000000',
-	  },
+	//  info: {
+	// 	main: '#000000',
+	// 	contrastText: '#ffffff',
+	//  },
 	},
 	typography: {
 		fontFamily: "'Source Sans Pro', sans-serif",

@@ -9,7 +9,7 @@ import setAuthToken from '../../utils/setAuthToken';
 
 const useStyles = makeStyles(theme => ({
   container: {
-    height: "90vh",
+    // height: "90vh",
     margin: "0",
     padding: "1rem 2rem",
     backgroundPosition: 'center',
