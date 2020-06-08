@@ -21,6 +21,8 @@
         "director" : "Réalisateur",
         "actors" : "Acteurs",
         "overview" : "Présentation"
+    },
+    "comment" : {
+        "leavecomment" : "laissez un commentaire..."
     }
-
 }

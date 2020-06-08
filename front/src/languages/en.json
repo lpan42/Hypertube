@@ -21,5 +21,8 @@
         "director" : "Director",
         "actors" : "Actors",
         "overview" : "Overview"
+    },
+    "comment" : {
+        "leavecomment" : "Leave a Comment..."
     }
 }

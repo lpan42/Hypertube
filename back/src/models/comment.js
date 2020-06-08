@@ -6,7 +6,7 @@ const commentSchema = new Schema({
     username: String,
     imdbId: String,
     comment: String,
-    time: Date.now,
+    time : { type : Date, default: Date.now }
 });
 
 // commentSchema.methods.generateToken = function() {

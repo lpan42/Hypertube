@@ -16,8 +16,10 @@ import TodayIcon from '@material-ui/icons/Today';
 import LanguageIcon from '@material-ui/icons/Language';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import Spinner from '../layout/Spinner';
+import Divider from '@material-ui/core/Divider';
 import EN from '../../languages/en.json';
 import FR from '../../languages/fr.json';
+import Comments from './Comments';
 
 const useStyles = makeStyles(theme => ({
     movieInfo:{
@@ -50,7 +52,10 @@ const useStyles = makeStyles(theme => ({
         flexDirection: "raw",
         justifyContent: "flex-start",
         alignItems:"baseline",
-    }
+    },
+    dividerColor: {
+        backgroundColor: theme.palette.primary.main,
+    },
   }));
 
   const MyTooltip = withStyles((theme) => ({
@@ -90,6 +95,7 @@ const Movie = ({ match }) => {
             setLoading(false);
         }
     }
+    
     useEffect(() => {
         loadUser();
         //eslint-disable-next-line
@@ -194,10 +200,10 @@ const Movie = ({ match }) => {
                     <Typography variant="subtitle2">
                     {movieInfo.Plot}
                     </Typography>
-                
                 </div>
             </div>
-            <div>comments</div>
+            <Divider classes={{root: classes.dividerColor}}/>
+            <Comments language={lang} imdbId={match.params.imdb_id}/>
         </Fragment>
     )
 

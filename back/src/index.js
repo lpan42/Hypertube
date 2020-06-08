@@ -9,6 +9,7 @@ const User = require('./models/user');
 const userRoute = require('./routes/userRoute');
 const oAuthRoute = require('./routes/oAuthRoute');
 const movieRoute = require('./routes/movieRoute');
+const commentRoute = require('./routes/commentRoute');
 
 mongoose.connect("mongodb://localhost:27017/hypertube", {
   useNewUrlParser: true,
@@ -52,6 +53,7 @@ passport.deserializeUser((user, done) => {
 app.use('/user/', userRoute);
 app.use('/auth/', oAuthRoute);
 app.use('/movie/', movieRoute);
+app.use('/comment/', commentRoute);
 
 
 const PORT = 8000;

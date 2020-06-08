@@ -43,6 +43,9 @@ const useStyles = makeStyles(theme => ({
             height: theme.spacing(15),
         },
       },
+    dividerColor: {
+      backgroundColor: theme.palette.primary.main,
+   },
   }));
 
 const MyAccount = () => {
@@ -99,7 +102,7 @@ const MyAccount = () => {
             <Typography variant="subtitle1" component="span" className={classes.text}>{lang.account.language}:</Typography>
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.language)}</Typography> 
             <br></br>
-            <Divider />
+            <Divider classes={{root: classes.dividerColor}}/>
             <WatchLater movies={user && user.data.watchLater} />
         </div>
       </div>
