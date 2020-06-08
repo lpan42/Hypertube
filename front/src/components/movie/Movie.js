@@ -23,7 +23,6 @@ const useStyles = makeStyles(theme => ({
     movieInfo:{
         width:"100%",
         maxHeight:"75vh",
-        
         margin: "0",
         display:"flex",
         flexDirection: "row",
@@ -168,14 +167,14 @@ const Movie = ({ match }) => {
                         <Typography variant="h4" component="p" color="primary">{movieInfo.Title} ({movieInfo.Year})</Typography>
                         {watchLaterBtn()}
                     </div>
-                    <Typography variant="subtitle1" >
+                    <Typography variant="subtitle2" >
                         <Box fontStyle="italic" color="secondary.light">
                             {movieInfo.Tagline}
                         </Box>
                     </Typography>
                     <br></br>
                     <div className={classes.iconsDiv}>
-                        <Typography variant="subtitle1">
+                        <Typography variant="subtitle2">
                                 {movieInfo.Rated}
                             <TodayIcon />
                                 {movieInfo.Released}
@@ -185,14 +184,14 @@ const Movie = ({ match }) => {
                                 {movieInfo.Language}
                         </Typography>
                     </div>
-                    <Typography variant="subtitle1">Genre: {movieInfo.Genre}</Typography>
-                    <Typography variant="subtitle1">{lang.movie.imdbrating}: {movieInfo.ImdbRating} / 10</Typography>
-                    <Typography variant="subtitle1">{lang.movie.country}: {movieInfo.Country}</Typography>
-                    <Typography variant="subtitle1">{lang.movie.director}: {movieInfo.Director}</Typography>
-                    <Typography variant="subtitle1">{lang.movie.actors}: {movieInfo.Actors}</Typography>
+                    <Typography variant="subtitle2">Genre: {movieInfo.Genre}</Typography>
+                    <Typography variant="subtitle2">{lang.movie.imdbrating}: {movieInfo.ImdbRating} / 10</Typography>
+                    <Typography variant="subtitle2">{lang.movie.country}: {movieInfo.Country}</Typography>
+                    <Typography variant="subtitle2">{lang.movie.director}: {movieInfo.Director}</Typography>
+                    <Typography variant="subtitle2">{lang.movie.actors}: {movieInfo.Actors}</Typography>
                     <br></br>
-                    <Typography variant="subtitle1">{lang.movie.overview}:</Typography>
-                    <Typography variant="subtitle1">
+                    <Typography variant="subtitle2">{lang.movie.overview}:</Typography>
+                    <Typography variant="subtitle2">
                     {movieInfo.Plot}
                     </Typography>
                 

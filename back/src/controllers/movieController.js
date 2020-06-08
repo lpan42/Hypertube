@@ -51,9 +51,7 @@ export async function addWatchLater(req, res){
         "Poster" : "https://image.tmdb.org/t/p/w500" + themoviedb.data.poster_path,
 
     }
-    console.log(data)
-
-    await User.updateOne({_id:req.userid},{$addToSet:{ watchLater :data}},(err) => {
+    await User.updateOne({ _id:req.userid },{ $addToSet : { watchLater :data }},(err) => {
         if(err) return res.status(400).json({ error:"Update failed" });
     });
     return res.status(200).json({ success: "Add to watchlater list" });
@@ -61,7 +59,7 @@ export async function addWatchLater(req, res){
 
 
 export async function removeWatchLater(req, res){
-    await User.updateOne({_id:req.userid},{$pull:{ watchLater : req.params.imdb_id}},(err) => {
+    await User.updateOne({ _id:req.userid },{ $pull : { watchLater : { ImdbID : req.params.imdb_id }}},(err) => {
         if(err) return res.status(400).json({ error:"Update failed" });
     });
     return res.status(200).json({ success: "Remove from watchlater list" });
