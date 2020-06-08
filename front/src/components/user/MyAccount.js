@@ -103,7 +103,7 @@ const MyAccount = () => {
             <Typography variant="subtitle1" component="span">{user && toUpperCase(user.data.language)}</Typography> 
             <br></br>
             <Divider classes={{root: classes.dividerColor}}/>
-            <WatchLater movies={user && user.data.watchLater} />
+            <WatchLater movies={user && user.data.watchLater} language={lang}/>
         </div>
       </div>
     )

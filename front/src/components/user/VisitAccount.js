@@ -75,7 +75,7 @@ const VisitAccount = ({accountInfo}) => {
                 <Typography variant="subtitle1" component="span">{toUpperCase(accountInfo.language)}</Typography> 
                 <br></br>
                 <Divider />
-                <WatchLater movies={accountInfo.watchLater} />
+                <WatchLater movies={accountInfo.watchLater} language={lang}/>
             </div>
         </div>
     )

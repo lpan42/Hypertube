@@ -13,16 +13,20 @@
         "useraccount" : "Compte d'utilisateur",
         "editmyaccount" : "Modifier mon compte",
         "upload" : "Télécharger",
-        "confirm" : "Confirmer"
+        "confirm" : "Confirmer",
+        "watchlaterlist": "A Regarder Plus Tard"
     },
     "movie" : {
         "imdbrating" : "IMDb Évaluation",
         "country" : "Pays",
         "director" : "Réalisateur",
         "actors" : "Acteurs",
-        "overview" : "Présentation"
+        "overview" : "Présentation",
+        "addtowatchlater":"A Regarder Plus Tard",
+        "removefromwatchlater":"Supprimer de A Regarder Plus Tard"
     },
     "comment" : {
+        "comments" : "Commentaires",
         "leavecomment" : "laissez un commentaire..."
     }
 }

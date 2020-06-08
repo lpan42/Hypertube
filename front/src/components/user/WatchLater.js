@@ -25,7 +25,7 @@ const useStyles = makeStyles(theme => ({
     },
   }));
 
-const WatchLater = ({movies}) => {
+const WatchLater = ({movies, language}) => {
     const classes = useStyles();
 
    if(movies){
@@ -47,7 +47,7 @@ const WatchLater = ({movies}) => {
        })
         return (
             <div>
-                <Typography variant="subtitle1" style={{textAlign:"right"}}>WatchLater List</Typography>
+                <Typography variant="subtitle1" style={{textAlign:"right"}}>{language.account.watchlaterlist}</Typography>
                 <div  className={classes.cardDiv} >
                     {singleMovie}
                 </div>
@@ -58,7 +58,7 @@ const WatchLater = ({movies}) => {
     else{
         return (
             <div>
-                <Typography variant="subtitle1" style={{textAlign:"right"}}>WatchLater List</Typography>
+                <Typography variant="subtitle1" style={{textAlign:"right"}}>{language.account.watchlaterlist}</Typography>
                 <Divider />
             </div>
         );

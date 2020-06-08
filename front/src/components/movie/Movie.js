@@ -150,14 +150,14 @@ const Movie = ({ match }) => {
             for(const key in user.data.watchLater){
                 if(user.data.watchLater[key].ImdbID === match.params.imdb_id){
                     return (
-                        <MyTooltip title="Remove From WatchLater">
+                        <MyTooltip title={lang.movie.removefromwatchlater}>
                             <BookmarkIcon color="primary" onClick={removeWatchLater}/>
                         </MyTooltip>
                     )
                 }
             }
             return(
-                <MyTooltip title="Add To WatchLater">
+                <MyTooltip title={lang.movie.addtowatchlater}>
                     <BookmarkBorderIcon color="primary" onClick={addWatchLater}/>
                 </MyTooltip>
             )

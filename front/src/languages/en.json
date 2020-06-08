@@ -13,16 +13,20 @@
         "useraccount" : "User Account",
         "editmyaccount" : "Edit My Account",
         "upload" : "Upload",
-        "confirm" : "Confirm"
+        "confirm" : "Confirm",
+        "watchlaterlist": "WatchLater List"
     },
     "movie" : {
         "imdbrating" : "IMDb Rating",
         "country" : "Country",
         "director" : "Director",
         "actors" : "Actors",
-        "overview" : "Overview"
+        "overview" : "Overview",
+        "addtowatchlater":"Add To WatchLater",
+        "removefromwatchlater":"Remove from WatchLater"
     },
     "comment" : {
+        "comments" : "Comments",
         "leavecomment" : "Leave a Comment..."
     }
 }

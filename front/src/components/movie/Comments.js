@@ -90,7 +90,7 @@ const Comments = ({language, imdbId}) => {
     return (
         <div>
             <div className={classes.commentDiv}>
-                <Typography variant="body1">Comments:</Typography>
+                <Typography variant="body1">{language.comment.comments}:</Typography>
                 <form className={classes.chatBox}>
 					<TextField placeholder={language.comment.leavecomment} className={classes.textForm} variant="outlined"
                         multiline rowsMax={4} value={newComment} onChange={e=>setNewComment(e.target.value)}
