@@ -18,7 +18,8 @@ const useStyles = makeStyles(theme => ({
     },
     card: {
         margin:"5px",
-        minWidth:135,
+        minWidth:130,
+        maxWidth:150,
     },
     media: {
         height: 200,
@@ -39,7 +40,7 @@ const WatchLater = ({movies, language}) => {
                                 className={classes.media}
                                 image={movie.Poster}
                             />
-                            <Typography style={{padding:"3px"}} variant="caption" color="primary">{movie.Title}</Typography>
+                            <Typography variant="caption" color="primary">{movie.Title}</Typography>
                         </Link>
                     </CardContent>
                 </Card>

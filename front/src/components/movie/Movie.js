@@ -3,7 +3,6 @@ import UserContext from '../../contexts/user/userContext';
 import setAuthToken from '../../utils/setAuthToken';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useHistory } from "react-router-dom";
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
@@ -20,6 +19,7 @@ import Divider from '@material-ui/core/Divider';
 import EN from '../../languages/en.json';
 import FR from '../../languages/fr.json';
 import Comments from './Comments';
+import MoviePlayer from './Player';
 
 const useStyles = makeStyles(theme => ({
     movieInfo:{
@@ -70,8 +70,7 @@ const useStyles = makeStyles(theme => ({
 const Movie = ({ match }) => {
     const userContext = useContext(UserContext);
 
-    const {loadUser, user,token} = userContext;
-    const history = useHistory();
+    const { loadUser, user } = userContext;
     const classes = useStyles();
 
     const [lang, setLang] = useState(null);
@@ -165,7 +164,7 @@ const Movie = ({ match }) => {
     }
     const moviePage = (
         <Fragment>
-            <div>player</div>
+            <MoviePlayer />
             <div className={classes.movieInfo}>
                 <img className={classes.poster} src={movieInfo.Poster} />
                 <div className={classes.movieContent}>
@@ -209,10 +208,7 @@ const Movie = ({ match }) => {
 
     return (
         <div>
-        {invalidId ? 
-            <Typography>{invalidId}</Typography> : 
-            moviePage
-        }
+            { invalidId ? <Typography>{invalidId}</Typography> : moviePage }
         </div>
     )
 }

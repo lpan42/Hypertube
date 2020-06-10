@@ -10,6 +10,7 @@ const userRoute = require('./routes/userRoute');
 const oAuthRoute = require('./routes/oAuthRoute');
 const movieRoute = require('./routes/movieRoute');
 const commentRoute = require('./routes/commentRoute');
+const YTSscraper = require('./config/YTSscraper');
 
 mongoose.connect("mongodb://localhost:27017/hypertube", {
   useNewUrlParser: true,
@@ -55,6 +56,10 @@ app.use('/auth/', oAuthRoute);
 app.use('/movie/', movieRoute);
 app.use('/comment/', commentRoute);
 
+app.get("/scrap_yts", (req, res) => {
+  YTSscraper.scrapYTS();
+  res.send({ message: "Scrap YTS finished" });
+});
 
 const PORT = 8000;
 
