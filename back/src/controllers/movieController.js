@@ -14,7 +14,7 @@ export async function getMovieinfo(req, res){
         )
         if(omdi.data.Response!=="False"){
             result = {
-                "Title" : omdi.data.Title,
+                "Title" : themoviedb.data.title,
                 "Year" : omdi.data.Year,
                 "Released" : omdi.data.Released,
                 "Language" : omdi.data.Language,
