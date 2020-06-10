@@ -56,8 +56,8 @@ app.use('/auth/', oAuthRoute);
 app.use('/movie/', movieRoute);
 app.use('/comment/', commentRoute);
 
-app.get("/scrap_yts", (req, res) => {
-  YTSscraper.scrapYTS();
+app.get("/scrap_yts", async (req, res) => {
+  await YTSscraper.scrapYTS();
   res.send({ message: "Scrap YTS finished" });
 });
 

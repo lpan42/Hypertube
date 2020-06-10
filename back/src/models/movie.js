@@ -7,6 +7,7 @@ const movieSchema = new Schema({
     Year: Number,
     Poster: String,
     Runtime: Number,
+    Plot: String,
     Language: String,
     Genre: Array,
     ImdbRating: Number,
