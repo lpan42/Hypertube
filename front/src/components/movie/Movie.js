@@ -74,11 +74,11 @@ const Movie = ({ match }) => {
     const classes = useStyles();
 
     const [lang, setLang] = useState(null);
-    const [movieInfo, setMovieInfo] = useState("");
+    const [movieInfo, setMovieInfo] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [loading, setLoading] = useState(true);
-    const [invalidId, setInvalidId] = useState("");
+    const [invalidId, setInvalidId] = useState('');
 
     const getMoiveInfo = async (imdb_id) => {
         try{
@@ -164,7 +164,7 @@ const Movie = ({ match }) => {
     }
     const moviePage = (
         <Fragment>
-            <MoviePlayer />
+            <MoviePlayer imdb_id={match.params.imdb_id}/>
             <div className={classes.movieInfo}>
                 <img className={classes.poster} src={movieInfo.Poster} />
                 <div className={classes.movieContent}>

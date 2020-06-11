@@ -1,5 +1,7 @@
 const axios = require('axios').default;
 const User = require('../models/user');
+const Movie = require('../models/movie');
+const torrentStream = require('torrent-stream');
 
 export async function getMovieinfo(req, res){
     if(!req.params.imdb_id)
@@ -63,4 +65,41 @@ export async function removeWatchLater(req, res){
         if(err) return res.status(400).json({ error:"Update failed" });
     });
     return res.status(200).json({ success: "Remove from watchlater list" });
+}
+
+export async function getSingleMovie(req,res){
+    // console.log(req.userid, req.params.imdb_id)
+    await Movie.findOne({ ImdbId:req.params.imdb_id }, (err, result) => {
+        if(err){
+            console.log(err)
+            return res.status(400).json({ error:"Failed to fetch movie" })
+        }
+        if(result===null){
+            return res.status(400).json({ error:"No movie resource found" })
+        }
+        return res.status(200).json({ data: result });
+    })
+}
+
+export async function streamMovie(req,res){
+    // console.log(req.userid)
+    // console.log(req.params.imdb_id)
+    // console.log(req.params.quality)
+    // console.log(req.params.provider)
+    Movie.findOne({ 
+        ImdbId:req.params.imdb_id},
+        { Torrents: { $elemMatch: { quality: req.params.quality, provider: req.params.provider } } }, 
+        (err,torrent) => {
+            if(err){
+                return res.status(400).json({ error:"Failed to fetch movie" })
+            }
+            if(torrent===null){
+                return res.status(400).json({ error:"No movie resource found" })
+            }
+            console.log(torrent)
+            console.log(torrent.Torrents[0].url)
+            const engine = torrentStream(torrent.Torrents[0].url);
+        }
+    )
+    // const engine = torrentStream('magnet:my-magnet-link');
 }
