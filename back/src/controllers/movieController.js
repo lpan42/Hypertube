@@ -1,7 +1,12 @@
 const axios = require('axios').default;
 const User = require('../models/user');
 const Movie = require('../models/movie');
+const Downloaded = require('../models/downloaded');
 const torrentStream = require('torrent-stream');
+const fs = require('fs');
+const rootPath = process.cwd();
+const path = require('path');
+const pump = require('pump');
 
 export async function getMovieinfo(req, res){
     if(!req.params.imdb_id)
@@ -70,36 +75,166 @@ export async function removeWatchLater(req, res){
 export async function getSingleMovie(req,res){
     // console.log(req.userid, req.params.imdb_id)
     await Movie.findOne({ ImdbId:req.params.imdb_id }, (err, result) => {
-        if(err){
-            console.log(err)
-            return res.status(400).json({ error:"Failed to fetch movie" })
-        }
-        if(result===null){
+        if(err || result === null){
             return res.status(400).json({ error:"No movie resource found" })
         }
         return res.status(200).json({ data: result });
     })
 }
 
-export async function streamMovie(req,res){
-    // console.log(req.userid)
+export async function stream(res, filePath, start, end){
+    // console.log(filePath)
+    // console.log(start)
+    // console.log(end)
+    let stream = fs.createReadStream(filePath, {
+        start: start,
+        end: end
+      });
+      pump(stream, res);
+} 
+
+export async function downloadTorrent(req,res,torrent){
     // console.log(req.params.imdb_id)
     // console.log(req.params.quality)
     // console.log(req.params.provider)
+    // console.log(torrent)
+    let fileSize;
+    let filePath;
+
+    const engine = torrentStream(torrent.url,{
+        connections: 100,
+        uploads: 10,
+        path: rootPath + '/movies',
+    });
+
+    engine.on('ready', function() {
+        engine.files.forEach(function(file) {
+            const ext = path.extname(file.path);
+            if(ext === '.mp4' || ext === '.avi' || ext === '.mkv' || ext === '.ogg'){
+console.log(ext)
+                file.select();
+                fileSize = file.length;
+                filePath = rootPath + '/movies/' + file.path;
+console.log(filePath);
+                let contentType;
+                    if(ext === '.mp4')
+                        contentType = 'video/mp4';
+                    else if(ext === '.ogg')
+                        contentType = 'video/ogg';
+                    else 
+                        contentType = 'video/webm';
+                const range = req.headers.range;
+                if (range) {
+                    const parts = range.replace(/bytes=/, "").split("-");
+                    const start = parseInt(parts[0], 10);
+                    const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
+                    const chunksize = (end - start) + 1;
+                    
+                    const head = {
+                        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+                        'Accept-Ranges': 'bytes',
+                        'Content-Length': chunksize,
+                        'Content-Type': contentType,
+                    }
+                    res.writeHead(206, head);
+                    stream(res, filePath, start, end);
+                } else {
+                    const head = {
+                        'Content-Length': fileSize,
+                        'Content-Type': contentType,
+                    }
+                    res.writeHead(200, head);
+                    stream(res, filePath, 0, fileSize);
+                }
+            }else {
+                file.deselect();
+            }
+        });
+    });
+    engine.on("download", () => {
+        console.log("Downloding: " + Math.round(engine.swarm.downloaded / fileSize * 100) + "%");
+    })
+    engine.on('idle', () => {
+        const newDowloaded =  new Downloaded({  
+            ImdbId: req.params.imdb_id,
+            Quality: req.params.quality,
+            Provider: req.params.provider,
+            FilePath: filePath 
+        })
+        newDowloaded.save((err) => {
+            if(err)
+                console.log(err)
+        })
+        console.log("Download Finish");
+    })
+}
+
+export async function streamMovie(req,res){
+    console.log("call")
     Movie.findOne({ 
         ImdbId:req.params.imdb_id},
         { Torrents: { $elemMatch: { quality: req.params.quality, provider: req.params.provider } } }, 
         (err,torrent) => {
-            if(err){
-                return res.status(400).json({ error:"Failed to fetch movie" })
-            }
-            if(torrent===null){
+            if(err || !torrent.Torrents.length){
                 return res.status(400).json({ error:"No movie resource found" })
             }
-            console.log(torrent)
-            console.log(torrent.Torrents[0].url)
-            const engine = torrentStream(torrent.Torrents[0].url);
+            else{
+                //add to watched
+                // User.findOne({ _id: req.userid }, { watched:{ $elemMatch:{ ImdbId: req.params.imdb_id }}},
+                //     (err, watched) => {
+                //     if (err) console.log(err);
+                //     if(!watched.watched.length){
+                //         User.updateOne({ _id:req.userid },{ $addToSet : { watched : {"ImdbID" : req.params.imdb_id} }},(err) => {
+                //             if(err) return res.status(400).json({ error:"file to add to watched" });
+                //         });
+                //     }
+                //   });
+
+                //check if downloaded
+                Downloaded.findOne({ ImdbId:req.params.imdb_id, Quality: req.params.quality, Provider: req.params.provider },
+                    (err, downloaded) => {
+                    if (err) console.log(err);
+                    if(downloaded === null){
+                        downloadTorrent(req,res, torrent.Torrents[0]);
+                    }
+                    else{
+                        const filePath = downloaded.FilePath;
+                        const stat = fs.statSync(filePath);
+                        const fileSize = stat.size;
+                        const ext = path.extname(filePath);
+                        let contentType;
+                        if(ext === '.mp4')
+                            contentType = 'video/mp4';
+                        else if(ext === '.ogg')
+                            contentType = 'video/ogg';
+                        else 
+                            contentType = 'video/webm';
+                        const range = req.headers.range;
+                        if (range) {
+                            const parts = range.replace(/bytes=/, "").split("-");
+                            const start = parseInt(parts[0], 10);
+                            const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
+                            const chunksize = (end - start) + 1;
+                            
+                            const head = {
+                                'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+                                'Accept-Ranges': 'bytes',
+                                'Content-Length': chunksize,
+                                'Content-Type': contentType,
+                            }
+                            res.writeHead(206, head);
+                            stream(res, filePath, start, end);
+                        } else {
+                            const head = {
+                                'Content-Length': fileSize,
+                                'Content-Type': contentType,
+                            }
+                            res.writeHead(200, head);
+                            stream(res, filePath, 0, fileSize);
+                        }
+                    }
+                })
+            }
         }
     )
-    // const engine = torrentStream('magnet:my-magnet-link');
 }

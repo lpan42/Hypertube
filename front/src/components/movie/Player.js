@@ -73,18 +73,21 @@ const MoviePlayer = ({ imdb_id }) => {
     
     const selectTorrent = async (e) => {
         setAuthToken(localStorage.token);
-        try{
-            const result =  await axios.get(`
-                /movie/stream/${imdb_id}&${singleMovie.Torrents[e.currentTarget.value].provider}&${singleMovie.Torrents[e.currentTarget.value].quality}
-            `);
-            // setSingleMovie(result.data.data);
-        }catch(err){
-            // setError(err.response.data.error);
-        }
+        setVideoSrc(`http://localhost:8000/movie/stream/${imdb_id}&${singleMovie.Torrents[e.currentTarget.value].provider}&${singleMovie.Torrents[e.currentTarget.value].quality}`)
+    
+        
+        // try{
+        //     const result =  await axios.get(`
+        //         /movie/stream/${imdb_id}&${singleMovie.Torrents[e.currentTarget.value].provider}&${singleMovie.Torrents[e.currentTarget.value].quality}
+        //     `);
+        //     // setSingleMovie(result.data.data);
+        // }catch(err){
+        //     // setError(err.response.data.error);
+        // }
         // console.log(singleMovie.Torrents[e.currentTarget.value].provider)
         // console.log(singleMovie.Torrents[e.currentTarget.value].quality)
     }   
-
+    console.log(videoSrc)
     // console.log(singleMovie)
     singleMovie && singleMovie.Torrents.map((torrent,key) => {
         torrentSelection.push(
