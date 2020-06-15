@@ -9,7 +9,8 @@ router.route('/stream/:imdb_id&:provider&:quality').get(movieController.streamMo
 
 router.route('/watchlater/add/:imdb_id').post(auth, movieController.addWatchLater);
 router.route('/watchlater/remove/:imdb_id').post(auth, movieController.removeWatchLater);
-
+router.route('/getmoviedata/:pages').get(auth, movieController.getmoviedata);
+router.route('/searchmovie/:keyword').get(auth, movieController.searchMovie);
 
 
 module.exports = router;

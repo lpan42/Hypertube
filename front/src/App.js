@@ -14,6 +14,8 @@ import Account from './components/user/Account';
 import OAuthValid from './components/user/OAuthValid';
 import Movie from './components/movie/Movie';
 import UserState from './contexts/user/UserState';
+import MovieState from './contexts/movie/movieState';
+
 
 import { createMuiTheme } from '@material-ui/core/styles';
 import { ThemeProvider } from '@material-ui/styles';
@@ -65,6 +67,7 @@ toast.configure({
 const App = () => {
 	return (
 		<UserState>
+			<MovieState>
 			<Router>
 				<ThemeProvider theme={theme}>
 					<Fragment>
@@ -83,6 +86,7 @@ const App = () => {
 					</Fragment>
 				</ThemeProvider>
 			</Router>
+			</MovieState>
 		</UserState>
 	)
 }
