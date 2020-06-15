@@ -71,23 +71,23 @@ const MoviePlayer = ({ imdb_id }) => {
         //eslint-disable-next-line
     }, []);
     
+
     const selectTorrent = async (e) => {
-        setAuthToken(localStorage.token);
         setVideoSrc(`http://localhost:8000/movie/stream/${imdb_id}&${singleMovie.Torrents[e.currentTarget.value].provider}&${singleMovie.Torrents[e.currentTarget.value].quality}`)
-    
-        
-        // try{
-        //     const result =  await axios.get(`
-        //         /movie/stream/${imdb_id}&${singleMovie.Torrents[e.currentTarget.value].provider}&${singleMovie.Torrents[e.currentTarget.value].quality}
-        //     `);
-        //     // setSingleMovie(result.data.data);
-        // }catch(err){
-        //     // setError(err.response.data.error);
-        // }
-        // console.log(singleMovie.Torrents[e.currentTarget.value].provider)
-        // console.log(singleMovie.Torrents[e.currentTarget.value].quality)
     }   
-    console.log(videoSrc)
+   
+
+    const onPlay = async () =>{
+        if(videoSrc){
+            setAuthToken(localStorage.token);
+            try{
+                const result =  await axios.post(`/movie/watched/add/${imdb_id}`);
+            }catch(err){
+                setError(err.response.data.error);
+            }
+        }
+    }
+
     // console.log(singleMovie)
     singleMovie && singleMovie.Torrents.map((torrent,key) => {
         torrentSelection.push(
@@ -95,9 +95,8 @@ const MoviePlayer = ({ imdb_id }) => {
         )
     })
     const player = (
-        <div className={classes.palyerDiv}>
+        <div className={classes.palyerDiv}  onClick={()=>onPlay()}>
             <Player poster={singleMovie.Poster} preload="auto" src={videoSrc}>
-                {/* <source ></source> */}
             <ControlBar>
                 <ReplayControl seconds={10} order={1.1} />
                 <ForwardControl seconds={10} order={1.2} />

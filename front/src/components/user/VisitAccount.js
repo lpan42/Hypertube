@@ -9,7 +9,7 @@ import { fade } from '@material-ui/core/styles/colorManipulator';
 import Avatar from '@material-ui/core/Avatar';
 import EN from '../../languages/en.json';
 import FR from '../../languages/fr.json';
-import WatchLater from './WatchLater';
+import Watch from './Watch';
 import Divider from '@material-ui/core/Divider';
 
 const useStyles = makeStyles(theme => ({
@@ -73,9 +73,18 @@ const VisitAccount = ({accountInfo}) => {
                 <br></br>
                 <Typography variant="h6" component="span" className={classes.text}>{lang.account.language}:</Typography>
                 <Typography variant="subtitle1" component="span">{toUpperCase(accountInfo.language)}</Typography> 
+                <br></br><br></br>
+                <Divider classes={{root: classes.dividerColor}}/>
+                <div>
+                <Typography variant="subtitle1" style={{textAlign:"right"}}>{lang.account.watchlaterlist}</Typography>
+                <Watch movies={accountInfo.watchLater} language={lang}/>
+                </div>
                 <br></br>
-                <Divider />
-                <WatchLater movies={accountInfo.watchLater} language={lang}/>
+                <Divider classes={{root: classes.dividerColor}}/>
+                <div>
+                <Typography variant="subtitle1" style={{textAlign:"right"}}>{lang.account.moviewatched}</Typography>
+                <Watch movies={accountInfo.watched} language={lang}/>
+                </div>
             </div>
         </div>
     )

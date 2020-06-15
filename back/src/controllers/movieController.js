@@ -6,7 +6,6 @@ const torrentStream = require('torrent-stream');
 const fs = require('fs');
 const rootPath = process.cwd();
 const path = require('path');
-const pump = require('pump');
 
 export async function getMovieinfo(req, res){
     if(!req.params.imdb_id)
@@ -90,7 +89,7 @@ export async function stream(res, filePath, start, end){
         start: start,
         end: end
       });
-      pump(stream, res);
+      stream.pipe(res);
 } 
 
 export async function downloadTorrent(req,res,torrent){
@@ -109,13 +108,14 @@ export async function downloadTorrent(req,res,torrent){
 
     engine.on('ready', function() {
         engine.files.forEach(function(file) {
+            console.log(file.name)
             const ext = path.extname(file.path);
             if(ext === '.mp4' || ext === '.avi' || ext === '.mkv' || ext === '.ogg'){
 console.log(ext)
                 file.select();
                 fileSize = file.length;
                 filePath = rootPath + '/movies/' + file.path;
-console.log(filePath);
+// console.log(filePath);
                 let contentType;
                     if(ext === '.mp4')
                         contentType = 'video/mp4';
@@ -155,22 +155,34 @@ console.log(filePath);
         console.log("Downloding: " + Math.round(engine.swarm.downloaded / fileSize * 100) + "%");
     })
     engine.on('idle', () => {
-        const newDowloaded =  new Downloaded({  
+        //check if exists
+        Downloaded.findOne({ 
             ImdbId: req.params.imdb_id,
             Quality: req.params.quality,
             Provider: req.params.provider,
             FilePath: filePath 
-        })
-        newDowloaded.save((err) => {
-            if(err)
+        },(err,res) => {
+            if(err){
                 console.log(err)
+            }
+            if(res === null){
+                const newDowloaded =  new Downloaded({  
+                    ImdbId: req.params.imdb_id,
+                    Quality: req.params.quality,
+                    Provider: req.params.provider,
+                    FilePath: filePath 
+                })
+                newDowloaded.save((err) => {
+                    if(err)
+                        console.log(err)
+                })
+            }
         })
         console.log("Download Finish");
     })
 }
 
 export async function streamMovie(req,res){
-    console.log("call")
     Movie.findOne({ 
         ImdbId:req.params.imdb_id},
         { Torrents: { $elemMatch: { quality: req.params.quality, provider: req.params.provider } } }, 
@@ -179,17 +191,6 @@ export async function streamMovie(req,res){
                 return res.status(400).json({ error:"No movie resource found" })
             }
             else{
-                //add to watched
-                // User.findOne({ _id: req.userid }, { watched:{ $elemMatch:{ ImdbId: req.params.imdb_id }}},
-                //     (err, watched) => {
-                //     if (err) console.log(err);
-                //     if(!watched.watched.length){
-                //         User.updateOne({ _id:req.userid },{ $addToSet : { watched : {"ImdbID" : req.params.imdb_id} }},(err) => {
-                //             if(err) return res.status(400).json({ error:"file to add to watched" });
-                //         });
-                //     }
-                //   });
-
                 //check if downloaded
                 Downloaded.findOne({ ImdbId:req.params.imdb_id, Quality: req.params.quality, Provider: req.params.provider },
                     (err, downloaded) => {
@@ -237,4 +238,29 @@ export async function streamMovie(req,res){
             }
         }
     )
+}
+
+export async function addToWatched(req,res){
+    User.findOne({ _id: req.userid }, { watched:{ $elemMatch:{ ImdbID: req.params.imdb_id }}},
+        async (err, watched) => {
+        if (err) console.log(err);
+        if(!watched.watched.length){
+            console.log("call")
+            const themoviedb = await axios.get(
+                `https://api.themoviedb.org/3/movie/${req.params.imdb_id}?api_key=d022dfadcf20dc66d480566359546d3c`
+            )
+            const data = {
+                "ImdbID" : req.params.imdb_id,
+                "Title" : themoviedb.data.title,
+                "Poster" : "https://image.tmdb.org/t/p/w500" + themoviedb.data.poster_path,
+        
+            }
+            await User.updateOne({ _id:req.userid },{ $addToSet : { watched :data }},(err) => {
+                if(err) return res.status(400).json({ error:"file to add to watched" });
+            });
+            return res.status(200);
+        }else{
+            return res.status(200);
+        }
+      });
 }

@@ -14,7 +14,8 @@
         "editmyaccount" : "Edit My Account",
         "upload" : "Upload",
         "confirm" : "Confirm",
-        "watchlaterlist": "WatchLater List"
+        "watchlaterlist": "WatchLater List",
+        "moviewatched": "Movies Watched"
     },
     "movie" : {
         "imdbrating" : "IMDb Rating",

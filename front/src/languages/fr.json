@@ -14,7 +14,8 @@
         "editmyaccount" : "Modifier mon compte",
         "upload" : "Télécharger",
         "confirm" : "Confirmer",
-        "watchlaterlist": "A Regarder Plus Tard"
+        "watchlaterlist": "A Regarder Plus Tard",
+        "moviewatched": "Films Regardés"
     },
     "movie" : {
         "imdbrating" : "IMDb Évaluation",
