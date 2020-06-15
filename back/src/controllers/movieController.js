@@ -478,6 +478,32 @@ export async function addToWatched(req,res){
         }else{
             return res.status(200);
         }
-      });
-    return res.status(200);
+        return res.status(200);
+    });
+    
+}
+
+export async function getmoviedata(req, res){
+    const moviedata = await Movie.find({}, (err, result) => {
+        if (err) { 
+            return (res.status(500).json({ error: "Fail to fetch Database"}))
+        }
+        if (result) {
+            return (res.status(200).json({ data: result}));
+        } else {
+            return (res.status(200).json({ data: 'No Database'}))
+        }
+    }).sort({ImdbRating: -1}).limit(30 * req.params.pages);
+}
+
+export async function searchMovie(req, res){
+    const keyword = req.params.keyword;
+    const result = await Movie.find({Title: new RegExp(keyword, 'i') }, (err, result) =>{
+        if (err) { 
+            return (res.status(500).json({error: "Fail to fetch Database"}))
+        }
+        if (result){
+            return(res.status(200).json({ data: result }))
+        }
+    }).sort({ImdbRating: -1}).limit(30);
 }

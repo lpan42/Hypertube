@@ -29,5 +29,43 @@
     "comment" : {
         "comments" : "Commentaires",
         "leavecomment" : "laissez un commentaire..."
+    },
+    "movietype" : {
+        "Action" : "Action",
+        "Adventure" : "Aventure",
+        "Animation" : "Animation",
+        "Biography" : "Biopic",
+        "Comedy" : "Comédie",
+        "Crime"	: "Crime",
+        "Documentary" : "Documentaire",
+        "Drama" : "Drame",
+        "Family" : "Famille",
+        "Fantasy" : "Fantastique",
+        "FilmNoir" : "Film Noir",
+        "History" : "Historique",
+        "Horror" : "Horreur",
+        "Music" : "Music",
+        "Musical" : "Musical",
+        "Mystery" :"Mystère",
+        "Romance" : "Romance",
+        "SciFi" : "Sci-Fi",
+        "ShortFilm" : "Court Métrage",
+        "Sport" : "Sport",
+        "Superhero" : "Superhero",
+        "Thriller" : "Thriller",
+        "War" : "Guerre",
+        "Western" : "Western"
+    },
+    "filter" : {
+        "filter" : "Filtres",
+        "year" : "Année",
+        "genres" : "Genres",
+        "releasedate" : "Date de sortie",
+        "from" : "du",
+        "to" : "au",
+        "rating" : "Rating",
+        "searchforamovie" : "Rechercher un film...",
+        "sort" : "Trier les résultats par",
+        "search" : "Rechercher"
     }
 }

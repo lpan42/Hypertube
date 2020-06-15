@@ -12,3 +12,6 @@ export const LOGOUT = 'LOGOUT';
 export const EDIT_ACCOUNT_SUCCESS = 'EDIT_ACCOUNT_SUCCESS';
 export const EDIT_ACCOUNT_FAIL = 'EDIT_ACCOUNT_FAIL';
 export const SET_TOKEN = 'SET_TOKEN';
+//film
+export const FETCH_MOVIES = 'FETCH_MOVIES';
+export const FETCH_ERROR = 'FETCH_ERROR';

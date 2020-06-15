@@ -12,7 +12,7 @@ const Index = () => {
     useEffect(() => {
         loadUser();
         //eslint-disable-next-line
-      }, []);
+    }, []);
     // useEffect(() => {
     //     loadUser();
     //     if(!token && !user){
