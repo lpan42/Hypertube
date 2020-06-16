@@ -37,8 +37,6 @@ export async function getMovieinfo(req, res){
                 "ImdbID" : omdi.data.imdbID,
             }
         }
-        // console.log(omdi.data)
-        // console.log(themoviedb.data)
         return res.status(200).json({ data: result });
     }catch(err){
         if(err){
@@ -72,7 +70,6 @@ export async function removeWatchLater(req, res){
 }
 
 export async function getSingleMovie(req,res){
-    // console.log(req.userid, req.params.imdb_id)
     await Movie.findOne({ ImdbId:req.params.imdb_id }, (err, result) => {
         if(err || result === null){
             return res.status(400).json({ error:"No movie resource found" })
@@ -81,22 +78,44 @@ export async function getSingleMovie(req,res){
     })
 }
 
-export async function stream(res, filePath, start, end){
-    // console.log(filePath)
-    // console.log(start)
-    // console.log(end)
+export async function stream(req,res,fileSize,filePath,ext){
+    let contentType;
+    let start;
+    let end;
+    if(ext === '.mp4')
+        contentType = 'video/mp4';
+    else if(ext === '.ogg')
+        contentType = 'video/ogg';
+    else 
+        contentType = 'video/webm';
+    const range = req.headers.range;
+    if (range) {
+        const parts = range.replace(/bytes=/, "").split("-");
+        start = parseInt(parts[0], 10);
+        end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
+        const chunksize = (end - start) + 1;
+        const head = {
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Type': contentType,
+        }
+        res.writeHead(206, head);
+    } else {
+        const head = {
+            'Content-Length': fileSize,
+            'Content-Type': contentType,
+        }
+        res.writeHead(200, head);
+    }
     let stream = fs.createReadStream(filePath, {
         start: start,
         end: end
-      });
-      stream.pipe(res);
+    });
+    stream.pipe(res);
 } 
 
 export async function downloadTorrent(req,res,torrent){
-    // console.log(req.params.imdb_id)
-    // console.log(req.params.quality)
-    // console.log(req.params.provider)
-    // console.log(torrent)
     let fileSize;
     let filePath;
 
@@ -108,44 +127,13 @@ export async function downloadTorrent(req,res,torrent){
 
     engine.on('ready', function() {
         engine.files.forEach(function(file) {
-            console.log(file.name)
             const ext = path.extname(file.path);
             if(ext === '.mp4' || ext === '.avi' || ext === '.mkv' || ext === '.ogg'){
 console.log(ext)
                 file.select();
                 fileSize = file.length;
                 filePath = rootPath + '/movies/' + file.path;
-// console.log(filePath);
-                let contentType;
-                    if(ext === '.mp4')
-                        contentType = 'video/mp4';
-                    else if(ext === '.ogg')
-                        contentType = 'video/ogg';
-                    else 
-                        contentType = 'video/webm';
-                const range = req.headers.range;
-                if (range) {
-                    const parts = range.replace(/bytes=/, "").split("-");
-                    const start = parseInt(parts[0], 10);
-                    const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
-                    const chunksize = (end - start) + 1;
-                    
-                    const head = {
-                        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-                        'Accept-Ranges': 'bytes',
-                        'Content-Length': chunksize,
-                        'Content-Type': contentType,
-                    }
-                    res.writeHead(206, head);
-                    stream(res, filePath, start, end);
-                } else {
-                    const head = {
-                        'Content-Length': fileSize,
-                        'Content-Type': contentType,
-                    }
-                    res.writeHead(200, head);
-                    stream(res, filePath, 0, fileSize);
-                }
+                stream(req,res,fileSize,filePath,ext);
             }else {
                 file.deselect();
             }
@@ -203,36 +191,7 @@ export async function streamMovie(req,res){
                         const stat = fs.statSync(filePath);
                         const fileSize = stat.size;
                         const ext = path.extname(filePath);
-                        let contentType;
-                        if(ext === '.mp4')
-                            contentType = 'video/mp4';
-                        else if(ext === '.ogg')
-                            contentType = 'video/ogg';
-                        else 
-                            contentType = 'video/webm';
-                        const range = req.headers.range;
-                        if (range) {
-                            const parts = range.replace(/bytes=/, "").split("-");
-                            const start = parseInt(parts[0], 10);
-                            const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
-                            const chunksize = (end - start) + 1;
-                            
-                            const head = {
-                                'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-                                'Accept-Ranges': 'bytes',
-                                'Content-Length': chunksize,
-                                'Content-Type': contentType,
-                            }
-                            res.writeHead(206, head);
-                            stream(res, filePath, start, end);
-                        } else {
-                            const head = {
-                                'Content-Length': fileSize,
-                                'Content-Type': contentType,
-                            }
-                            res.writeHead(200, head);
-                            stream(res, filePath, 0, fileSize);
-                        }
+                        stream(req,res,fileSize,filePath,ext);
                     }
                 })
             }
