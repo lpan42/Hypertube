@@ -83,24 +83,20 @@ export async function convertMovieTypeAndStream(res, filePath, start, end){
 
 }
 
-export async function stream(res, filePath, start, end){
-    const fileExists = fs.existsSync(filePath);
-    if(fileExists){
-        let stream = fs.createReadStream(filePath, {
-            start: start,
-            end: end
-          });
-        stream.on('open',() => {
-            stream.pipe(res);
-        })
-        stream.on('error',(err)=>{
-            res.end(err);
-        })
-    }
+export function stream(res, filePath, start, end){
+    let stream = fs.createReadStream(filePath, {
+        start: start,
+        end: end
+        });
+    stream.on('open',() => {
+        stream.pipe(res);
+    })
+    stream.on('error',(err)=>{
+        res.end(err);
+    })
 } 
 
-
-export async function downloadTorrent(req,res,torrent){
+export function downloadTorrent(req,res,torrent){
     let fileSize;
     let filePath;
 
@@ -126,11 +122,12 @@ export async function downloadTorrent(req,res,torrent){
                     else 
                         contentType = 'video/webm';
                 const range = req.headers.range;
+                console.log("range:" + range);
                 if (range) {
                     const parts = range.replace(/bytes=/, "").split("-");
                     const start = parseInt(parts[0], 10);
                     const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
-                    const chunksize = (end - start) + 1;
+                    const chunksize = (end - start)+ 1 ;
                     const head = {
                         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                         'Accept-Ranges': 'bytes',
@@ -138,14 +135,30 @@ export async function downloadTorrent(req,res,torrent){
                         'Content-Type': contentType,
                     }
                     res.writeHead(206, head);
-                    stream(res, rootPath + filePath, start, end);
+                    
+                    const checkFileExist = setInterval(() => {
+                        const fileExists = fs.existsSync(rootPath + filePath);
+                        if (fileExists) {
+                            clearInterval(checkFileExist);
+                            stream(res, rootPath + filePath, start, end);
+                        }
+                    }, checkFileExist);
                 } else {
+                    console.log("called 200")
                     const head = {
                         'Content-Length': fileSize,
                         'Content-Type': contentType,
                     }
-                    res.writeHead(201, head);
-                    stream(res, rootPath + filePath, 0, fileSize);
+                    res.writeHead(200, head);
+
+                    const timeout = setInterval(function() {
+                        const fileExists = fs.existsSync(rootPath + filePath);
+                        if (fileExists) {
+                            clearInterval(timeout);
+                            stream(res, rootPath + filePath, 0, fileSize - 1);
+                        }
+                    }, timeout);
+                    // stream(res, rootPath + filePath, start, end);
                 }
             }else {
                 file.deselect();
@@ -183,7 +196,7 @@ export async function downloadTorrent(req,res,torrent){
     })
 }
 
-export async function streamMovie(req,res){
+export function streamMovie(req,res){
     Movie.findOne({ 
         ImdbId:req.params.imdb_id},
         { Torrents: { $elemMatch: { quality: req.params.quality, provider: req.params.provider } } }, 
@@ -201,39 +214,49 @@ export async function streamMovie(req,res){
                     }
                     else{
                         const filePath = rootPath + downloaded.FilePath;
-                        const stat = fs.statSync(filePath);
-                        const fileSize = stat.size;
-                        const ext = path.extname(filePath);
-                        let contentType;
-                        if(ext === '.mp4')
-                            contentType = 'video/mp4';
-                        else if(ext === '.ogg')
-                            contentType = 'video/ogg';
-                        else 
-                            contentType = 'video/webm';
-                        const range = req.headers.range;
-                        if (range) {
-                            const parts = range.replace(/bytes=/, "").split("-");
-                            const start = parseInt(parts[0], 10);
-                            const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
-                            const chunksize = (end - start) + 1;
-                            
-                            const head = {
-                                'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-                                'Accept-Ranges': 'bytes',
-                                'Content-Length': chunksize,
-                                'Content-Type': contentType,
+                        const fileExists = fs.existsSync(filePath);
+                        console.log(fileExists)
+                        if(!fileExists){
+                            Downloaded.deleteOne({ImdbId: req.params.imdb_id},(err)=>{
+                                if (err) console.log(err);
+                            })
+                            downloadTorrent(req,res, torrent.Torrents[0]);
+                        }else{
+                            const stat = fs.statSync(filePath);
+                            const fileSize = stat.size;
+                            const ext = path.extname(filePath);
+                            let contentType;
+                            if(ext === '.mp4')
+                                contentType = 'video/mp4';
+                            else if(ext === '.ogg')
+                                contentType = 'video/ogg';
+                            else 
+                                contentType = 'video/webm';
+                            const range = req.headers.range;
+                            if (range) {
+                                const parts = range.replace(/bytes=/, "").split("-");
+                                const start = parseInt(parts[0], 10);
+                                const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
+                                const chunksize = (end - start) + 1;
+                                
+                                const head = {
+                                    'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+                                    'Accept-Ranges': 'bytes',
+                                    'Content-Length': chunksize,
+                                    'Content-Type': contentType,
+                                }
+                                res.writeHead(206, head);
+                                stream(res, filePath, start, end);
+                            } else {
+                                const head = {
+                                    'Content-Length': fileSize,
+                                    'Content-Type': contentType,
+                                }
+                                res.writeHead(200, head);
+                                stream(res, filePath, 0, fileSize);
                             }
-                            res.writeHead(206, head);
-                            stream(res, filePath, start, end);
-                        } else {
-                            const head = {
-                                'Content-Length': fileSize,
-                                'Content-Type': contentType,
-                            }
-                            res.writeHead(200, head);
-                            stream(res, filePath, 0, fileSize);
                         }
+                        
                     }
                 })
             }

@@ -101,14 +101,11 @@ const MoviePlayer = ({ imdb_id }) => {
     })
     const player = (
         <div className={classes.palyerDiv}>
-            {/* <video controls poster={singleMovie.Poster}>
-                <source src={videoSrc}/>
-            </video> */}
             <Player poster={singleMovie.Poster} preload="auto" src={videoSrc}>
             <ControlBar>
                 <ReplayControl seconds={10} order={1.1} />
                 <ForwardControl seconds={10} order={1.2} />
-                <PlaybackRateMenuButton rates={[2, 1.25, 1, 0.5]} order={7.1} />
+                <PlaybackRateMenuButton rates={[10,5,2, 1.25, 1, 0.5]} order={7.1} />
                 <VolumeMenuButton disabled />
             </ControlBar>
             </Player>
