@@ -71,17 +71,22 @@ const MoviePlayer = ({ imdb_id }) => {
         //eslint-disable-next-line
     }, []);
     
+    // useEffect(()=> {
+    //     if(error){
+    //         alert(error);
+    //         setError('')
+    //     }
+    // },[error]);
 
     const selectTorrent = async (e) => {
         setVideoSrc(`http://localhost:8000/movie/stream/${imdb_id}&${singleMovie.Torrents[e.currentTarget.value].provider}&${singleMovie.Torrents[e.currentTarget.value].quality}`)
     }   
    
-
     const onPlay = async () =>{
         if(videoSrc){
             setAuthToken(localStorage.token);
             try{
-                const result =  await axios.post(`/movie/watched/add/${imdb_id}`);
+                await axios.post(`/movie/watched/add/${imdb_id}`);
             }catch(err){
                 setError(err.response.data.error);
             }
@@ -95,13 +100,14 @@ const MoviePlayer = ({ imdb_id }) => {
         )
     })
     const player = (
-        <div className={classes.palyerDiv}  onClick={()=>onPlay()}>
+        <div className={classes.palyerDiv}>
+            {/* <video controls poster={singleMovie.Poster}>
+                <source src={videoSrc}/>
+            </video> */}
             <Player poster={singleMovie.Poster} preload="auto" src={videoSrc}>
             <ControlBar>
                 <ReplayControl seconds={10} order={1.1} />
                 <ForwardControl seconds={10} order={1.2} />
-                {/* <CurrentTimeDisplay order={4.1} /> */}
-                {/* <TimeDivider order={4.2} /> */}
                 <PlaybackRateMenuButton rates={[2, 1.25, 1, 0.5]} order={7.1} />
                 <VolumeMenuButton disabled />
             </ControlBar>

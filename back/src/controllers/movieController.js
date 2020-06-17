@@ -6,6 +6,7 @@ const torrentStream = require('torrent-stream');
 const fs = require('fs');
 const rootPath = process.cwd();
 const path = require('path');
+const ffmpeg = require('fluent-ffmpeg');
 
 export async function getMovieinfo(req, res){
     if(!req.params.imdb_id)
@@ -72,48 +73,32 @@ export async function removeWatchLater(req, res){
 export async function getSingleMovie(req,res){
     await Movie.findOne({ ImdbId:req.params.imdb_id }, (err, result) => {
         if(err || result === null){
-            return res.status(400).json({ error:"No movie resource found" })
+            return res.status(400).json({ error:"No available movie resource found" })
         }
         return res.status(200).json({ data: result });
     })
 }
 
-export async function stream(req,res,fileSize,filePath,ext){
-    let contentType;
-    let start;
-    let end;
-    if(ext === '.mp4')
-        contentType = 'video/mp4';
-    else if(ext === '.ogg')
-        contentType = 'video/ogg';
-    else 
-        contentType = 'video/webm';
-    const range = req.headers.range;
-    if (range) {
-        const parts = range.replace(/bytes=/, "").split("-");
-        start = parseInt(parts[0], 10);
-        end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
-        const chunksize = (end - start) + 1;
-        const head = {
-            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-            'Accept-Ranges': 'bytes',
-            'Content-Length': chunksize,
-            'Content-Type': contentType,
-        }
-        res.writeHead(206, head);
-    } else {
-        const head = {
-            'Content-Length': fileSize,
-            'Content-Type': contentType,
-        }
-        res.writeHead(200, head);
+export async function convertMovieTypeAndStream(res, filePath, start, end){
+
+}
+
+export async function stream(res, filePath, start, end){
+    const fileExists = fs.existsSync(filePath);
+    if(fileExists){
+        let stream = fs.createReadStream(filePath, {
+            start: start,
+            end: end
+          });
+        stream.on('open',() => {
+            stream.pipe(res);
+        })
+        stream.on('error',(err)=>{
+            res.end(err);
+        })
     }
-    let stream = fs.createReadStream(filePath, {
-        start: start,
-        end: end
-    });
-    stream.pipe(res);
 } 
+
 
 export async function downloadTorrent(req,res,torrent){
     let fileSize;
@@ -129,11 +114,39 @@ export async function downloadTorrent(req,res,torrent){
         engine.files.forEach(function(file) {
             const ext = path.extname(file.path);
             if(ext === '.mp4' || ext === '.avi' || ext === '.mkv' || ext === '.ogg'){
-console.log(ext)
+// console.log(ext)
                 file.select();
                 fileSize = file.length;
-                filePath = rootPath + '/movies/' + file.path;
-                stream(req,res,fileSize,filePath,ext);
+                filePath = '/movies/' + file.path;
+                let contentType;
+                    if(ext === '.mp4')
+                        contentType = 'video/mp4';
+                    else if(ext === '.ogg')
+                        contentType = 'video/ogg';
+                    else 
+                        contentType = 'video/webm';
+                const range = req.headers.range;
+                if (range) {
+                    const parts = range.replace(/bytes=/, "").split("-");
+                    const start = parseInt(parts[0], 10);
+                    const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
+                    const chunksize = (end - start) + 1;
+                    const head = {
+                        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+                        'Accept-Ranges': 'bytes',
+                        'Content-Length': chunksize,
+                        'Content-Type': contentType,
+                    }
+                    res.writeHead(206, head);
+                    stream(res, rootPath + filePath, start, end);
+                } else {
+                    const head = {
+                        'Content-Length': fileSize,
+                        'Content-Type': contentType,
+                    }
+                    res.writeHead(201, head);
+                    stream(res, rootPath + filePath, 0, fileSize);
+                }
             }else {
                 file.deselect();
             }
@@ -187,11 +200,40 @@ export async function streamMovie(req,res){
                         downloadTorrent(req,res, torrent.Torrents[0]);
                     }
                     else{
-                        const filePath = downloaded.FilePath;
+                        const filePath = rootPath + downloaded.FilePath;
                         const stat = fs.statSync(filePath);
                         const fileSize = stat.size;
                         const ext = path.extname(filePath);
-                        stream(req,res,fileSize,filePath,ext);
+                        let contentType;
+                        if(ext === '.mp4')
+                            contentType = 'video/mp4';
+                        else if(ext === '.ogg')
+                            contentType = 'video/ogg';
+                        else 
+                            contentType = 'video/webm';
+                        const range = req.headers.range;
+                        if (range) {
+                            const parts = range.replace(/bytes=/, "").split("-");
+                            const start = parseInt(parts[0], 10);
+                            const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
+                            const chunksize = (end - start) + 1;
+                            
+                            const head = {
+                                'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+                                'Accept-Ranges': 'bytes',
+                                'Content-Length': chunksize,
+                                'Content-Type': contentType,
+                            }
+                            res.writeHead(206, head);
+                            stream(res, filePath, start, end);
+                        } else {
+                            const head = {
+                                'Content-Length': fileSize,
+                                'Content-Type': contentType,
+                            }
+                            res.writeHead(200, head);
+                            stream(res, filePath, 0, fileSize);
+                        }
                     }
                 })
             }
@@ -204,7 +246,6 @@ export async function addToWatched(req,res){
         async (err, watched) => {
         if (err) console.log(err);
         if(!watched.watched.length){
-            console.log("call")
             const themoviedb = await axios.get(
                 `https://api.themoviedb.org/3/movie/${req.params.imdb_id}?api_key=d022dfadcf20dc66d480566359546d3c`
             )
