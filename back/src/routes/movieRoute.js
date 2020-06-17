@@ -13,6 +13,8 @@ router.route('/watchlater/remove/:imdb_id').post(auth, movieController.removeWat
 router.route('/watched/add/:imdb_id').post(auth, movieController.addToWatched);
 router.route('/getmoviedata/:pages').get(auth, movieController.getmoviedata);
 router.route('/searchmovie/:keyword').get(auth, movieController.searchMovie);
+router.route('/getmoviedata').get(auth, movieController.getmoviedata);
+router.route('/searchmovie').post(auth, movieController.searchMovie);
 
 
 module.exports = router;

@@ -31,6 +31,7 @@
         "leavecomment" : "laissez un commentaire..."
     },
     "movietype" : {
+        "All" : "Tous",
         "Action" : "Action",
         "Adventure" : "Aventure",
         "Animation" : "Animation",

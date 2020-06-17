@@ -9,6 +9,7 @@ import {
     FETCH_ERROR
 } from '../types';
 
+
 const MovieState = props => {
     const initialState = {
         loading: true,
@@ -20,7 +21,7 @@ const MovieState = props => {
     const fetchmovie = async (pages) => {
         setAuthToken(localStorage.token);
         try{
-            const result = await axios.get(`/movie/getmoviedata/${pages}`);
+            const result = await axios.get(`/movie/getmoviedata`);
             dispatch({
                 type: FETCH_MOVIES,
                 payload: result.data
@@ -33,10 +34,18 @@ const MovieState = props => {
         }
     }
 
-    const searchByKeyword = async (keyword, pages) => {
+    const searchByKeyword = async (keyword, genre) => {
         setAuthToken(localStorage.token);
         try{
-            const result = await axios.get(`/movie/searchmovie/${keyword}${pages}`);
+            const config = {
+                headers: {'Content-Type': 'application/json'}
+            }
+            var data = {
+                genre: genre,
+                keyword: keyword
+            }; 
+            const result = await axios.post(`/movie/searchmovie`, data, config);
+            console.log(result)
             dispatch({
                 type: FETCH_MOVIES,
                 payload: result.data

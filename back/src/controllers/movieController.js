@@ -493,12 +493,23 @@ export async function getmoviedata(req, res){
         } else {
             return (res.status(200).json({ data: 'No Database'}))
         }
-    }).sort({ImdbRating: -1}).limit(30 * req.params.pages);
+    }).sort({ImdbRating: -1}).limit(30);
 }
 
+function maybeCreateMongoQuery(queryProp,value){
+    return value === null ? null : ({[queryProp]: value});
+}
+//problem with sending two condition for query DATA*********************************
 export async function searchMovie(req, res){
-    const keyword = req.params.keyword;
-    const result = await Movie.find({Title: new RegExp(keyword, 'i') }, (err, result) =>{
+    const genre = req.body.genre.length === 0 ? null : req.body.genre;
+    const keyword = req.body.keyword.length === 0 ? null : new RegExp(req.body.keyword, 'i');
+    console.log(req.body.keyword.length);
+    console.log(req.body.genre.length);
+    const result = await Movie.find({ $and:[   
+        maybeCreateMongoQuery('Title', keyword),
+        maybeCreateMongoQuery('Genre', genre)
+    ].filter(q => q !== null),    
+    }, (err, result) =>{
         if (err) { 
             return (res.status(500).json({error: "Fail to fetch Database"}))
         }

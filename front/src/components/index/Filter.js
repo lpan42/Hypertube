@@ -4,6 +4,9 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 
+import fr from '../../languages/fr.json';
+import en from '../../languages/en.json';
+
 <FormControl style={{float: 'right', backgroundColor: 'white', margin: '2em'}}>
 <Select value={genre} onChange={e=>setGenre(e.target.value)}>
     <Button value="action">{language.movietype.Action}</Button>
