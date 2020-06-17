@@ -135,7 +135,6 @@ const Search = () => {
                     <Button value="Scifi">{language.movietype.SciFi}</Button>
                     <Button value="Shortfilm">{language.movietype.ShortFilm}</Button>
                     <Button value="Sport">{language.movietype.Sport}</Button>
-                    <Button value="Superhero">{language.movietype.Superhero}</Button>
                     <Button value="Thriller">{language.movietype.Thriller}</Button>
                     <Button value="War">{language.movietype.War}</Button>
                     <Button value="Western">{language.movietype.Western}</Button>
