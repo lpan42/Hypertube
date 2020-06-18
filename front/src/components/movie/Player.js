@@ -17,10 +17,10 @@ import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Spinner from '../layout/Spinner';
 import Divider from '@material-ui/core/Divider';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import EN from '../../languages/en.json';
 import FR from '../../languages/fr.json';
 import Button from '@material-ui/core/Button';
-import ClickAwayListener from '@material-ui/core/ClickAwayListener';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
@@ -42,21 +42,32 @@ const MoviePlayer = ({ imdb_id }) => {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [videoSrc, setVideoSrc] = useState('');
-
+    const [subSrc, setSubSrc] = useState('');
+    const [currentSub, setCurrentSub] = useState('');
+    const [currentMovie, setCurrentMovie] = useState('');
+    const [openMovie, setOpenMovie] = useState(false);
+    const [openSub, setOpenSub] = useState(false);
+    const [subPath, setSubPath] = useState('');//all sub path
     const classes = useStyles();
 
     const torrentSelection = [];
-    const [open, setOpen] = React.useState(false);
-    const anchorRef = React.useRef(null);
 
-    const handleToggle = () => {
-        setOpen(true);
+    const chooseMovie = React.useRef(null);
+    const chooseSub = React.useRef(null);
+
+    const handleMovieToggle = () => {
+        setOpenMovie(true);
     };
-
-    const handleClose = () => {
-        setOpen(false);
+    const handleSubToggle = () => {
+        setOpenSub(true);
     };
-
+    const handleSubClose = () => {
+        setOpenSub(false);
+    };
+    const handleMovieClose = () => {
+        setOpenMovie(false);
+    };
+    
     const getSingleMovie = async () => {
         setAuthToken(localStorage.token);
         try{
@@ -66,11 +77,48 @@ const MoviePlayer = ({ imdb_id }) => {
             setError(err.response.data.error);
         }
     }
+    const setSub = () => {
+        if(user.data.language === "english"){
+            if(subPath.en !== null) setCurrentSub("English");
+            else setCurrentSub("No subtitle");
+        }
+       else{
+        if(subPath.fr !== null) setCurrentSub("Français");
+        else setCurrentSub("English");
+       }
+    }
+
+    const getSubtitle = async () => {
+        setAuthToken(localStorage.token);
+        try{
+            const result =  await axios.get(`/movie/subtitle/${imdb_id}`);
+            setSubPath(result.data.data);
+        }catch(err){
+            setError(err.response.data.error);
+        }
+    }
     useEffect(() => {
         getSingleMovie();
+        getSubtitle();
         //eslint-disable-next-line
     }, []);
-    
+
+    useEffect(() => {
+       if(subPath) setSub();
+        //eslint-disable-next-line
+    }, [subPath]);
+
+    useEffect(()=> {
+       
+        if(currentSub === "English")
+            setSubSrc(subPath.en);
+        if(currentSub === "Français")
+            setSubSrc(subPath.fr);
+        if(currentSub === "No subtitle")
+            setSubSrc('');
+        //eslint-disable-next-line
+    },[currentSub])
+
     // useEffect(()=> {
     //     if(error){
     //         alert(error);
@@ -79,8 +127,29 @@ const MoviePlayer = ({ imdb_id }) => {
     // },[error]);
 
     const selectTorrent = async (e) => {
+        setCurrentMovie(
+            singleMovie.Torrents[e.currentTarget.value].quality + " " + 
+            singleMovie.Torrents[e.currentTarget.value].provider
+        );
         setVideoSrc(`http://localhost:8000/movie/stream/${imdb_id}&${singleMovie.Torrents[e.currentTarget.value].provider}&${singleMovie.Torrents[e.currentTarget.value].quality}`)
-    }   
+        handleMovieClose()
+    }  
+    
+    const selectSub = (e) => {
+        //en
+        if(e.currentTarget.value === 1){
+            setCurrentSub("English");
+        }
+        //fr
+        if(e.currentTarget.value === 2){
+            setCurrentSub("Français");
+        }
+        //no
+        if(e.currentTarget.value === 0){
+            setCurrentSub("No subtitle");
+        }
+        handleSubClose();
+    }
    
     const onPlay = async () =>{
         if(videoSrc){
@@ -93,15 +162,21 @@ const MoviePlayer = ({ imdb_id }) => {
         }
     }
 
-    // console.log(singleMovie)
     singleMovie && singleMovie.Torrents.map((torrent,key) => {
         torrentSelection.push(
             <MenuItem key={key} value={key} onClick={e=>selectTorrent(e)}>{torrent.quality}{torrent.provider}</MenuItem>
         )
     })
+
+    
     const player = (
         <div className={classes.palyerDiv}>
-            <Player poster={singleMovie.Poster} preload="auto" src={videoSrc}>
+            <Player 
+                poster={singleMovie.Poster} 
+                preload="auto" 
+                src={videoSrc} 
+            >
+                <track label={currentSub} kind="subtitles" src={subSrc} default></track>
             <ControlBar>
                 <ReplayControl seconds={10} order={1.1} />
                 <ForwardControl seconds={10} order={1.2} />
@@ -116,17 +191,34 @@ const MoviePlayer = ({ imdb_id }) => {
         <div>
             {/* { videoSrc ? player : null } */}
             {player}
-            <Button ref={anchorRef} onClick={handleToggle} 
+            <Button ref={chooseSub} onClick={handleSubToggle} 
                 variant="contained" color="primary" style={{float:"right", margin:"10px"}}
             >
-              Choose a Moive Source
+              {currentSub ? "Subtitle: " + currentSub : "Choose a Subtitle"}
             </Button>
-            <Popper open={open} anchorEl={anchorRef.current} >
+            <Popper open={openSub} anchorEl={chooseSub.current} >
                 <Paper >
-                    <ClickAwayListener onClickAway={handleClose}>
-                    <MenuList autoFocusItem={open}>
-                        {torrentSelection}
-                    </MenuList>
+                    <ClickAwayListener onClickAway={handleSubClose}>
+                        <MenuList autoFocusItem={openSub}>
+                            {subPath.en === null ? null : <MenuItem value="1" onClick={e=>selectSub(e)}>English</MenuItem>}
+                            {subPath.fr === null ? null : <MenuItem value='2' onClick={e=>selectSub(e)}>Français</MenuItem>}
+                            <MenuItem value='0' onClick={e=>selectSub(e)}>No Subtitle</MenuItem>
+                        </MenuList>
+                    </ClickAwayListener>
+                </Paper>
+            </Popper>
+
+            <Button ref={chooseMovie} onClick={handleMovieToggle} 
+                variant="contained" color="primary" style={{float:"right", margin:"10px"}}
+            >
+              { currentMovie ? currentMovie : "Choose a Movie Source"}
+            </Button>
+            <Popper open={openMovie} anchorEl={chooseMovie.current} >
+                <Paper >
+                    <ClickAwayListener onClickAway={handleMovieClose}>
+                        <MenuList autoFocusItem={openMovie}>
+                            {torrentSelection}
+                        </MenuList>
                     </ClickAwayListener>
                 </Paper>
             </Popper>

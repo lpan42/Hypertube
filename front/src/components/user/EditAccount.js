@@ -131,7 +131,7 @@ const EditAccount = () => {
                     >
                         {languages.map(option => (
                             <MenuItem key={option.value} value={option.value}>
-                            {toUpperCase(option.value)}
+                                {toUpperCase(option.value)}
                             </MenuItem>
                         ))}
                     </TextField>

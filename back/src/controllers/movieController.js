@@ -8,6 +8,86 @@ const rootPath = process.cwd();
 const path = require('path');
 const ffmpeg = require('fluent-ffmpeg');
 
+export async function getSubtitle(req, res){
+    const config = require('../config/oAuthIds');
+    const OS = require('opensubtitles-api');
+    const download = require('download');
+    const OpenSubtitles = new OS({
+        useragent:'UserAgent',
+        username: config.OpenSubtitles.username,
+        password: config.OpenSubtitles.password,
+        ssl: true
+    });
+    let subPathEn = null;
+    let subPathFr = null;
+
+    OpenSubtitles.search({
+        sublanguageid: ["fre", "eng"].join(),
+        extensions: ['srt','vtt'],
+        limit: '3', 
+        imdbid: req.params.imdb_id,
+    }).then( async subs => {
+        const path = rootPath + '/../front/public/subtitles/' + req.params.imdb_id;
+        if (subs.en && subs.en[0].vtt){
+            if(!fs.existsSync(path + "en.vtt")){
+                try{
+                    const res = await download(subs.en[0].vtt);
+                    fs.writeFileSync(path + "en.vtt",res);
+                }
+                catch(err){
+                    try{
+                        const res = await download(subs.en[1].vtt);
+                        fs.writeFileSync(path + "en.vtt",res);
+                    }
+                    catch(err){
+                        try{
+                            const res = await download(subs.en[2].vtt);
+                            fs.writeFileSync(path + "en.vtt",res);
+                        }
+                        catch(err){
+                            console.log("No English subtitle is available.");
+                        }
+                    }
+                }
+            }
+            if(fs.existsSync(path + "en.vtt")){
+                subPathEn = "http://localhost:3000/subtitles/" + req.params.imdb_id + "en.vtt";
+            }
+        }
+        if (subs.fr && subs.fr[0].vtt){
+            if(!fs.existsSync(path + "fr.vtt")){
+                try{
+                    const res = await download(subs.fr[0].vtt);
+                    fs.writeFileSync(path + "fr.vtt",res);
+                }
+                catch(err){
+                    try{
+                        const res = await download(subs.fr[1].vtt);
+                        fs.writeFileSync(path + "fr.vtt",res);
+                    }
+                    catch(err){
+                        try{
+                            const res = await download(subs.fr[2].vtt);
+                            fs.writeFileSync(path + "fr.vtt",res);
+                        }
+                        catch(err){
+                            console.log("No French subtitle is available.");
+                        }
+                    }
+                }
+            }
+            if(fs.existsSync(path + "fr.vtt")){
+                subPathFr = "http://localhost:3000/subtitles/" + req.params.imdb_id + "fr.vtt";
+            }
+        }
+        const result = {
+            "en" : subPathEn,
+            "fr" : subPathFr
+        }
+        return res.status(200).json({ data: result });
+    });
+}
+
 export async function getMovieinfo(req, res){
     if(!req.params.imdb_id)
         return res.status(400).json({ error : "No IMDb ID" });
@@ -144,7 +224,6 @@ export function downloadTorrent(req,res,torrent){
                         }
                     }, checkFileExist);
                 } else {
-                    console.log("called 200")
                     const head = {
                         'Content-Length': fileSize,
                         'Content-Type': contentType,
@@ -155,10 +234,9 @@ export function downloadTorrent(req,res,torrent){
                         const fileExists = fs.existsSync(rootPath + filePath);
                         if (fileExists) {
                             clearInterval(timeout);
-                            stream(res, rootPath + filePath, 0, fileSize - 1);
+                            stream(res, rootPath + filePath, 0, fileSize);
                         }
                     }, timeout);
-                    // stream(res, rootPath + filePath, start, end);
                 }
             }else {
                 file.deselect();
@@ -215,7 +293,6 @@ export function streamMovie(req,res){
                     else{
                         const filePath = rootPath + downloaded.FilePath;
                         const fileExists = fs.existsSync(filePath);
-                        console.log(fileExists)
                         if(!fileExists){
                             Downloaded.deleteOne({ImdbId: req.params.imdb_id},(err)=>{
                                 if (err) console.log(err);
