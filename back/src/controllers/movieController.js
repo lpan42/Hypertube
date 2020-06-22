@@ -497,23 +497,26 @@ export async function getmoviedata(req, res){
     }).sort({ImdbRating: -1}).limit(30);
 }
 
-function maybeCreateMongoQuery(queryProp,value){
+function CreateMongoQuery(queryProp,value){
     return value === null ? null : ({[queryProp]: value});
 }
 
 export async function searchMovie(req, res){
     const genre = req.body.genre.length === 0 ? null : req.body.genre;
     const keyword = req.body.keyword.length === 0 ? null : new RegExp(req.body.keyword, 'i');
-    const result = await Movie.find({ $and:[   
-        maybeCreateMongoQuery('Title', keyword),
-        maybeCreateMongoQuery('Genre', genre),
+    const result = await Movie.find({ $and: [   
+        CreateMongoQuery('Title', keyword),
+        CreateMongoQuery('Genre', genre),
+        // CreateMongoQuery('Year', { $gt: yearmin, $lt: yearmax}),
     ].filter(q => q !== null),    
     }, (err, result) =>{
         if (err) { 
             return (res.status(500).json({error: "Fail to fetch Database"}))
         }
-        if (result){
+        if (result.length !== 0){
             return(res.status(200).json({ data: result }))
+        }else {
+            return (getmoviedata(req, res));
         }
-    }).sort({ImdbRating: -1}).limit(30);
+    }).sort({Title: 1}).limit(30).collation({locale: "en_US", numericOrdering: true});
 }

@@ -25,25 +25,47 @@ import MovieContext from '../../contexts/movie/movieContext';
 import UserState from '../../contexts/user/UserState';
 
 import UserContext from '../../contexts/user/userContext';
+import Popover from '@material-ui/core/Popover';
+import Slider from '@material-ui/core/Slider';
+
 
 const Search = () => {
     const movieContext = useContext(MovieContext);
     const userContext = useContext(UserContext);
     const { fetchmovie, movies, loading, searchByKeyword } = movieContext;
-    const { watchLater, loadUser } = userContext;
+    const { loadUser, user } = userContext;
     const [language, setLanguage] = useState(en);
     const [searchInput, setSearchInput] = useState('');
     const [addwatchLater, setAddWatchLater] = useState('');
-    const [genre, setGenre] = useState('');
+    const [removewatchLater,setRemoveWatchLater] = useState('');
+    const [genre, setGenre] = useState(language.movietype.All);
     const [success, setSuccess] = useState('');
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState(false);
+    const [yearrange, setYearrange] = useState([1900, 2020])
+    const [watchLaterList, setwatchLaterList] = useState('')
 
 
+    const [anchorEl, setAnchorEl] = React.useState(null);
+    const popoverhandleClick = (event) => {
+        setAnchorEl(event.currentTarget);
+    };
+    const popoverhandleClose = () => {
+        setAnchorEl(null);
+    };
+    const open = Boolean(anchorEl);
+    const id = open ? 'simple-popover' : undefined;
+    
     useEffect(() => {
         fetchmovie()
         setIsFetching(false);
     }, [])
+
+    useEffect(() => {
+        if (user){
+            setwatchLaterList(user.data.watchLater)
+        }
+    }, [user])
 
     useEffect(() => {
         const setQuery = (searchInput) => {
@@ -53,27 +75,47 @@ const Search = () => {
         
         if (TrimInputStr(searchInput) || genre.length !== 0){
             setIsFetching(true);
-            searchByKeyword(TrimInputStr(searchInput), genre);
+            searchByKeyword(TrimInputStr(searchInput), genre, yearrange);
         }else{
             fetchmovie()
         }
-
         setIsFetching(false);
-    }, [searchInput, genre])
+    }, [searchInput, genre, yearrange])
 
     useEffect(()=> {
         const addWatchLaterList = async() => {
             const result = await axios.post(`/movie/watchlater/add/${addwatchLater}`);
         }
+
         if (addwatchLater.length !== 0 ){
             addWatchLaterList();
         }
         setAddWatchLater('');
+        loadUser()
     }, [addwatchLater])
 
-    useEffect(() =>{
-        loadUser();
-    }, [watchLater])
+    useEffect(()=> {
+        const removeWatchLaterList = async() => {
+            const result = await axios.post(`/movie/watchlater/remove/${removewatchLater}`);
+        }
+
+        if (removewatchLater.length !== 0 ){
+            removeWatchLaterList();
+        }
+        setRemoveWatchLater('');
+        loadUser()
+    }, [removewatchLater])
+
+    const inWatchLaterList = (List, movie) => {
+        if ( List ){
+            for (let i = 0; i < List.length; i++){
+                if (List[i].ImdbID === movie){
+                    return (true)
+                }
+            }
+        }
+        return (false)
+    }
 
     const filmList = useMemo(() => {
         if (movies.length !== 0){
@@ -84,7 +126,9 @@ const Search = () => {
                         <div className="hidden content center aligned">
                             <Typography variant="subtitle2">
                                 <span style={{fontSize: 16}}>
-                                <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => setAddWatchLater(movie.ImdbId)}/>
+                                {inWatchLaterList(watchLaterList, movie.ImdbId) ? 
+                                    <BookmarkIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer', color: 'red'}} onClick={() => setRemoveWatchLater(movie.ImdbId)}/>
+                                    : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => setAddWatchLater(movie.ImdbId)}/>}
                                 {movie.Plot}
                                 <br/><br/>
                                 </span>
@@ -103,7 +147,7 @@ const Search = () => {
                 </div>
             ))
         }
-    }, [movies, genre])
+    }, [movies, watchLaterList])
 
     return (
         <Fragment>
@@ -112,34 +156,47 @@ const Search = () => {
                 <input className="prompt" type="text" placeholder={language.filter.search} onChange={e => setSearchInput(e.target.value)}/>
                 <i className="search icon"></i>
             </div>
-            <FormControl style={{float: 'right', backgroundColor: 'white', margin: '2em'}}>
-                <Select value={genre} onChange={e=>setGenre(e.target.value)}>
-                    <Button value="">{language.movietype.All}</Button>
-                    <Button value="Action">{language.movietype.Action}</Button>
-                    <Button value="Adventure">{language.movietype.Adventure}</Button>
-                    <Button value="Animation">{language.movietype.Animation}</Button>
-                    <Button value="Biography">{language.movietype.Biography}</Button>
-                    <Button value="Comedy">{language.movietype.Comedy}</Button>
-                    <Button value="Crime">{language.movietype.Crime}</Button>
-                    <Button value="Documentary">{language.movietype.Documentary}</Button>
-                    <Button value="Drama">{language.movietype.Drama}</Button>
-                    <Button value="Family">{language.movietype.Family}</Button>
-                    <Button value="Fantasy">{language.movietype.Fantasy}</Button>
-                    <Button value="Filmnoir">{language.movietype.FilmNoir}</Button>
-                    <Button value="History">{language.movietype.History}</Button>
-                    <Button value="Horror">{language.movietype.Horror}</Button>
-                    <Button value="Music">{language.movietype.Music}</Button>
-                    <Button value="Musical">{language.movietype.Musical}</Button>
-                    <Button value="Mystery">{language.movietype.Mystery}</Button>
-                    <Button value="Romance">{language.movietype.Romance}</Button>
-                    <Button value="Scifi">{language.movietype.SciFi}</Button>
-                    <Button value="Shortfilm">{language.movietype.ShortFilm}</Button>
-                    <Button value="Sport">{language.movietype.Sport}</Button>
-                    <Button value="Thriller">{language.movietype.Thriller}</Button>
-                    <Button value="War">{language.movietype.War}</Button>
-                    <Button value="Western">{language.movietype.Western}</Button>
-                </Select>
-            </FormControl>
+            
+            <Button aria-describedby={id} variant="contained" style={{float: 'right'}} onClick={popoverhandleClick}>
+                FILTER
+            </Button>
+            <Popover id={id} open={open} 
+                        anchorEl={anchorEl} onClose={popoverhandleClose} 
+                        anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} 
+                        transformOrigin={{vertical: 'top', horizontal: 'center'}}>
+                <div style={{width: 200, padding: '1.5em'}}>
+                <Typography variant="body2">Year: {yearrange[0]} - {yearrange[1]}</Typography>
+                <Slider value={yearrange} min={1900} max={2020} step={5}  onChange={(e,settingyearrange)=>{setYearrange(settingyearrange)}}/>
+                <FormControl style={{float: 'right', backgroundColor: 'white', margin: '2em'}}>
+                    <Select value={genre} onChange={e=>setGenre(e.target.value)}>
+                        <Button value="All">{language.movietype.All}</Button>
+                        <Button value="Action">{language.movietype.Action}</Button>
+                        <Button value="Adventure">{language.movietype.Adventure}</Button>
+                        <Button value="Animation">{language.movietype.Animation}</Button>
+                        <Button value="Biography">{language.movietype.Biography}</Button>
+                        <Button value="Comedy">{language.movietype.Comedy}</Button>
+                        <Button value="Crime">{language.movietype.Crime}</Button>
+                        <Button value="Documentary">{language.movietype.Documentary}</Button>
+                        <Button value="Drama">{language.movietype.Drama}</Button>
+                        <Button value="Family">{language.movietype.Family}</Button>
+                        <Button value="Fantasy">{language.movietype.Fantasy}</Button>
+                        <Button value="Filmnoir">{language.movietype.FilmNoir}</Button>
+                        <Button value="History">{language.movietype.History}</Button>
+                        <Button value="Horror">{language.movietype.Horror}</Button>
+                        <Button value="Music">{language.movietype.Music}</Button>
+                        <Button value="Musical">{language.movietype.Musical}</Button>
+                        <Button value="Mystery">{language.movietype.Mystery}</Button>
+                        <Button value="Romance">{language.movietype.Romance}</Button>
+                        <Button value="Scifi">{language.movietype.SciFi}</Button>
+                        <Button value="Shortfilm">{language.movietype.ShortFilm}</Button>
+                        <Button value="Sport">{language.movietype.Sport}</Button>
+                        <Button value="Thriller">{language.movietype.Thriller}</Button>
+                        <Button value="War">{language.movietype.War}</Button>
+                        <Button value="Western">{language.movietype.Western}</Button>
+                    </Select>
+                </FormControl>
+                </div>
+            </Popover>
             <div className="ui divider" style={{margin: '3em'}}></div>
             <div className="ui centered grid">
             {isFetching ? <Spinner/> :

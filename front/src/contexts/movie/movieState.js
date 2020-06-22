@@ -34,7 +34,7 @@ const MovieState = props => {
         }
     }
 
-    const searchByKeyword = async (keyword, genre) => {
+    const searchByKeyword = async (keyword, genre, yearrange) => {
         setAuthToken(localStorage.token);
         try{
             const config = {
@@ -42,10 +42,10 @@ const MovieState = props => {
             }
             var data = {
                 genre: genre,
-                keyword: keyword
+                keyword: keyword,
+                yearrange: yearrange
             }; 
             const result = await axios.post(`/movie/searchmovie`, data, config);
-            console.log(result)
             dispatch({
                 type: FETCH_MOVIES,
                 payload: result.data
