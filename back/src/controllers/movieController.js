@@ -498,16 +498,29 @@ export async function getmoviedata(req, res){
 }
 
 function CreateMongoQuery(queryProp,value){
-    return value === null ? null : ({[queryProp]: value});
+    if (value === '' || value === null){
+        return (null);
+    }
+    return ({[queryProp]: value});
+}
+
+function SortBy(keyword, criteria){
+    if (keyword !== null){
+        return ({Title: 1})
+    }else{
+        return({[criteria]: -1})
+    }
 }
 
 export async function searchMovie(req, res){
     const genre = req.body.genre.length === 0 ? null : req.body.genre;
     const keyword = req.body.keyword.length === 0 ? null : new RegExp(req.body.keyword, 'i');
-    const result = await Movie.find({ $and: [   
+    const criteria = 'ImdbRating';
+    const result = await Movie.find({ $and: [
         CreateMongoQuery('Title', keyword),
         CreateMongoQuery('Genre', genre),
-        // CreateMongoQuery('Year', { $gt: yearmin, $lt: yearmax}),
+        {'Year' : { $gt: Number(req.body.yearrange[0]), $lt: Number(req.body.yearrange[1])}},
+        {'ImdbRating' : { $gt: Number(req.body.ratingrange[0]), $lt: Number(req.body.ratingrange[1])}}
     ].filter(q => q !== null),    
     }, (err, result) =>{
         if (err) { 
@@ -518,5 +531,5 @@ export async function searchMovie(req, res){
         }else {
             return (getmoviedata(req, res));
         }
-    }).sort({Title: 1}).limit(30).collation({locale: "en_US", numericOrdering: true});
+    }).sort(SortBy(keyword, criteria)).limit(30);
 }

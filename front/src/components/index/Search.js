@@ -27,6 +27,7 @@ import UserState from '../../contexts/user/UserState';
 import UserContext from '../../contexts/user/userContext';
 import Popover from '@material-ui/core/Popover';
 import Slider from '@material-ui/core/Slider';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 
 const Search = () => {
@@ -38,12 +39,17 @@ const Search = () => {
     const [searchInput, setSearchInput] = useState('');
     const [addwatchLater, setAddWatchLater] = useState('');
     const [removewatchLater,setRemoveWatchLater] = useState('');
-    const [genre, setGenre] = useState(language.movietype.All);
+    const [genre, setGenre] = useState('');
     const [success, setSuccess] = useState('');
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState(false);
+
+    const [page, setPage] = useState(1);
+
     const [yearrange, setYearrange] = useState([1900, 2020])
-    const [watchLaterList, setwatchLaterList] = useState('')
+    const [ratingrange, setRatingrange] = useState([0, 10])
+
+    const [watchLaterList, setwatchLaterList] = useState({})
 
 
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -56,14 +62,15 @@ const Search = () => {
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
     
-    useEffect(() => {
-        fetchmovie()
-        setIsFetching(false);
-    }, [])
+    // useEffect(() => {
+    //     fetchmovie()
+    //     setIsFetching(false);
+    // }, [])
 
     useEffect(() => {
         if (user){
-            setwatchLaterList(user.data.watchLater)
+            const watchLaterList = user.data.watchLater;
+            setwatchLaterList(watchLaterList)
         }
     }, [user])
 
@@ -73,14 +80,14 @@ const Search = () => {
             return (searchMovieTrimmed);
         }
         
-        if (TrimInputStr(searchInput) || genre.length !== 0){
-            setIsFetching(true);
-            searchByKeyword(TrimInputStr(searchInput), genre, yearrange);
-        }else{
+        if (!TrimInputStr(searchInput) && genre.length === 0 && yearrange[0] === 1900 && yearrange[1] === 2020 && ratingrange[0] === 0 && ratingrange[1] === 10){
             fetchmovie()
+        }else{
+            setIsFetching(true);
+            searchByKeyword(TrimInputStr(searchInput), genre, yearrange, ratingrange, page);
         }
         setIsFetching(false);
-    }, [searchInput, genre, yearrange])
+    }, [searchInput, genre, yearrange, ratingrange, page])
 
     useEffect(()=> {
         const addWatchLaterList = async() => {
@@ -128,7 +135,7 @@ const Search = () => {
                                 <span style={{fontSize: 16}}>
                                 {inWatchLaterList(watchLaterList, movie.ImdbId) ? 
                                     <BookmarkIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer', color: 'red'}} onClick={() => setRemoveWatchLater(movie.ImdbId)}/>
-                                    : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => setAddWatchLater(movie.ImdbId)}/>}
+                                    : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => {setAddWatchLater(movie.ImdbId)}}/>}
                                 {movie.Plot}
                                 <br/><br/>
                                 </span>
@@ -158,18 +165,20 @@ const Search = () => {
             </div>
             
             <Button aria-describedby={id} variant="contained" style={{float: 'right'}} onClick={popoverhandleClick}>
-                FILTER
+                {language.filter.filter}
             </Button>
             <Popover id={id} open={open} 
                         anchorEl={anchorEl} onClose={popoverhandleClose} 
                         anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} 
                         transformOrigin={{vertical: 'top', horizontal: 'center'}}>
                 <div style={{width: 200, padding: '1.5em'}}>
-                <Typography variant="body2">Year: {yearrange[0]} - {yearrange[1]}</Typography>
+                <Typography variant="body2">{language.filter.year} {yearrange[0]} - {yearrange[1]}</Typography>
                 <Slider value={yearrange} min={1900} max={2020} step={5}  onChange={(e,settingyearrange)=>{setYearrange(settingyearrange)}}/>
+                <Typography variant="body2">{language.filter.rating} {ratingrange[0]} - {ratingrange[1]}</Typography>
+                <Slider value={ratingrange} min={0} max={10} step={0.5}  onChange={(e,settingratingrange)=>{setRatingrange(settingratingrange)}}/>
                 <FormControl style={{float: 'right', backgroundColor: 'white', margin: '2em'}}>
                     <Select value={genre} onChange={e=>setGenre(e.target.value)}>
-                        <Button value="All">{language.movietype.All}</Button>
+                        <Button value="">{language.movietype.All}</Button>
                         <Button value="Action">{language.movietype.Action}</Button>
                         <Button value="Adventure">{language.movietype.Adventure}</Button>
                         <Button value="Animation">{language.movietype.Animation}</Button>
@@ -197,6 +206,7 @@ const Search = () => {
                 </FormControl>
                 </div>
             </Popover>
+            <div><NavigateNextIcon style={{padding: '20', cursor: 'pointer'}} onClick={() => setPage(page + 1)}/></div>
             <div className="ui divider" style={{margin: '3em'}}></div>
             <div className="ui centered grid">
             {isFetching ? <Spinner/> :

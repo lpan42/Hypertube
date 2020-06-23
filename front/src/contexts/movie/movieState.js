@@ -34,7 +34,7 @@ const MovieState = props => {
         }
     }
 
-    const searchByKeyword = async (keyword, genre, yearrange) => {
+    const searchByKeyword = async (keyword, genre, yearrange, ratingrange, page) => {
         setAuthToken(localStorage.token);
         try{
             const config = {
@@ -43,7 +43,9 @@ const MovieState = props => {
             var data = {
                 genre: genre,
                 keyword: keyword,
-                yearrange: yearrange
+                yearrange: yearrange,
+                ratingrange: ratingrange,
+                page: page
             }; 
             const result = await axios.post(`/movie/searchmovie`, data, config);
             dispatch({
