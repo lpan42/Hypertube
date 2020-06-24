@@ -11,7 +11,6 @@ router.route('/stream/:imdb_id&:provider&:quality').get(movieController.streamMo
 router.route('/watchlater/add/:imdb_id').post(auth, movieController.addWatchLater);
 router.route('/watchlater/remove/:imdb_id').post(auth, movieController.removeWatchLater);
 router.route('/watched/add/:imdb_id').post(auth, movieController.addToWatched);
-router.route('/getmoviedata').get(auth, movieController.getmoviedata);
 router.route('/searchmovie').post(auth, movieController.searchMovie);
 
 

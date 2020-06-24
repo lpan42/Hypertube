@@ -18,22 +18,6 @@ const MovieState = props => {
 
     const [state, dispatch] = useReducer(MovieReducer, initialState);
 
-    const fetchmovie = async (pages) => {
-        setAuthToken(localStorage.token);
-        try{
-            const result = await axios.get(`/movie/getmoviedata`);
-            dispatch({
-                type: FETCH_MOVIES,
-                payload: result.data
-            })
-        } catch (err) {
-            dispatch({
-                type: FETCH_ERROR, 
-                payload: err.response
-            })
-        }
-    }
-
     const searchByKeyword = async (keyword, genre, yearrange, ratingrange, page) => {
         setAuthToken(localStorage.token);
         try{
@@ -67,7 +51,6 @@ const MovieState = props => {
                 movies: state.movies,
                 loading: state.loading,
                 pages: state.pages,
-                fetchmovie,
                 searchByKeyword,
             }}
         >

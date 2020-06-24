@@ -36,7 +36,7 @@ import LastPageIcon from '@material-ui/icons/LastPage';
 const Search = () => {
     const movieContext = useContext(MovieContext);
     const userContext = useContext(UserContext);
-    const { fetchmovie, movies, loading, searchByKeyword } = movieContext;
+    const { movies, loading, searchByKeyword } = movieContext;
     const { loadUser, user } = userContext;
     const [language, setLanguage] = useState(en);
 
