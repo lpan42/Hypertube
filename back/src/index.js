@@ -6,11 +6,17 @@ const mongoose = require('mongoose');
 const passport = require('passport');
 const session = require("express-session");
 const User = require('./models/user');
+const Downloaded = require('./models/downloaded');
 const userRoute = require('./routes/userRoute');
 const oAuthRoute = require('./routes/oAuthRoute');
 const movieRoute = require('./routes/movieRoute');
 const commentRoute = require('./routes/commentRoute');
 const YTSscraper = require('./config/YTSscraper');
+const cron = require('node-cron');
+const moment = require('moment');
+const fs = require('fs');
+const rootPath = process.cwd();
+const del = require('del');
 
 mongoose.connect("mongodb://localhost:27017/hypertube", {
   useNewUrlParser: true,
@@ -66,4 +72,30 @@ const PORT = 8000;
 // starting server
 http.listen(PORT,() => {
     console.log(`Node server running on port: ${PORT}`);
+});
+
+//Delete movies that nobody seen for a month
+//Check at midnite 00:00  everyday
+cron.schedule('00 00 * * *', () => {
+  console.log('Checking LastView Time and Remove movies');
+  const oneMonthBefore = moment().subtract(1, 'month');
+  Downloaded.find({LastView: {$lte: oneMonthBefore}}, (err, res) => {
+    if(err) console.log(err);
+    if(res.length){
+      res.map(async m => {
+        // console.log(m);
+        if(m.FilePath){
+          if (fs.existsSync(rootPath + m.FilePath)){
+            fs.unlink(rootPath + m.FilePath, (err) => {
+              if (err) console.log(err);
+              console.log(m.FilePath + ' was deleted');
+            });
+          }
+          Downloaded.deleteOne({ ImdbId: m.ImdbId, Quality:m.Quality, Provider:m.Provider },(err) => {
+            if(err) console.log(err);
+          })
+        }
+      })
+    }
+  })
 });

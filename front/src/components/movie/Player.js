@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState, Fragment } from 'react'
+import React, { useContext, useEffect, useState, useRef } from 'react'
 import UserContext from '../../contexts/user/userContext';
 import setAuthToken from '../../utils/setAuthToken';
 import axios from 'axios';
@@ -52,8 +52,8 @@ const MoviePlayer = ({ imdb_id }) => {
 
     const torrentSelection = [];
 
-    const chooseMovie = React.useRef(null);
-    const chooseSub = React.useRef(null);
+    const chooseMovie = useRef(null);
+    const chooseSub = useRef(null);
 
     const handleMovieToggle = () => {
         setOpenMovie(true);
@@ -118,7 +118,7 @@ const MoviePlayer = ({ imdb_id }) => {
             setSubSrc('');
         //eslint-disable-next-line
     },[currentSub])
-
+    // 
     // useEffect(()=> {
     //     if(error){
     //         alert(error);
@@ -150,8 +150,7 @@ const MoviePlayer = ({ imdb_id }) => {
         }
         handleSubClose();
     }
-   
-    const onPlay = async () =>{
+    const OnPlay = async () =>{
         if(videoSrc){
             setAuthToken(localStorage.token);
             try{
@@ -175,6 +174,7 @@ const MoviePlayer = ({ imdb_id }) => {
                 poster={singleMovie.Poster} 
                 preload="auto" 
                 src={videoSrc} 
+                onPlay={OnPlay}
             >
                 <track label={currentSub} kind="subtitles" src={subSrc} default></track>
             <ControlBar>

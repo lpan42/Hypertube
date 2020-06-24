@@ -6,7 +6,10 @@ const torrentStream = require('torrent-stream');
 const fs = require('fs');
 const rootPath = process.cwd();
 const path = require('path');
+const moment = require('moment');
+const ffmpegPath = require('@ffmpeg-installer/ffmpeg').path;
 const ffmpeg = require('fluent-ffmpeg');
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 export async function getSubtitle(req, res){
     const config = require('../config/oAuthIds');
@@ -160,10 +163,26 @@ export async function getSingleMovie(req,res){
 }
 
 export async function convertMovieTypeAndStream(res, filePath, start, end){
-
+   
+    const stream = fs.createReadStream(filePath);
+    ffmpeg(stream)
+    .format("webm")
+    .on("start", commandLine => {
+        console.log('Spawned Ffmpeg with command: ' + commandLine);
+    })
+    .on('error', err => {
+        console.log('An error occurred: ' + err.message);
+    })
+    .on('end', () => {
+        console.log('Processing finished !');
+    })
+    .pipe(res);
 }
 
-export function stream(res, filePath, start, end){
+export function stream(res, filePath, start, end,contentType){
+    if(contentType ==="video/webm" ){
+        convertMovieTypeAndStream(res, filePath, start, end)
+    }
     let stream = fs.createReadStream(filePath, {
         start: start,
         end: end
@@ -202,7 +221,7 @@ export function downloadTorrent(req,res,torrent){
                     else 
                         contentType = 'video/webm';
                 const range = req.headers.range;
-                console.log("range:" + range);
+                // console.log("range:" + range);
                 if (range) {
                     const parts = range.replace(/bytes=/, "").split("-");
                     const start = parseInt(parts[0], 10);
@@ -220,7 +239,7 @@ export function downloadTorrent(req,res,torrent){
                         const fileExists = fs.existsSync(rootPath + filePath);
                         if (fileExists) {
                             clearInterval(checkFileExist);
-                            stream(res, rootPath + filePath, start, end);
+                            stream(res, rootPath + filePath, start, end,contentType);
                         }
                     }, checkFileExist);
                 } else {
@@ -234,7 +253,7 @@ export function downloadTorrent(req,res,torrent){
                         const fileExists = fs.existsSync(rootPath + filePath);
                         if (fileExists) {
                             clearInterval(timeout);
-                            stream(res, rootPath + filePath, 0, fileSize);
+                            stream(res, rootPath + filePath, 0, fileSize,contentType);
                         }
                     }, timeout);
                 }
@@ -299,6 +318,11 @@ export function streamMovie(req,res){
                             })
                             downloadTorrent(req,res, torrent.Torrents[0]);
                         }else{
+                              //update LastView
+                            const newTimestamp = moment().format();     
+                            Downloaded.updateOne({ImdbId: req.params.imdb_id}, { $set: {LastView: newTimestamp}},(err)=>{
+                                if (err) console.log(err);
+                            })
                             const stat = fs.statSync(filePath);
                             const fileSize = stat.size;
                             const ext = path.extname(filePath);
@@ -311,11 +335,12 @@ export function streamMovie(req,res){
                                 contentType = 'video/webm';
                             const range = req.headers.range;
                             if (range) {
+                                console.log(range)
                                 const parts = range.replace(/bytes=/, "").split("-");
                                 const start = parseInt(parts[0], 10);
                                 const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
                                 const chunksize = (end - start) + 1;
-                                
+                                console.log(chunksize)
                                 const head = {
                                     'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                                     'Accept-Ranges': 'bytes',
@@ -323,14 +348,14 @@ export function streamMovie(req,res){
                                     'Content-Type': contentType,
                                 }
                                 res.writeHead(206, head);
-                                stream(res, filePath, start, end);
+                                stream(res, filePath, start, end,contentType);
                             } else {
                                 const head = {
                                     'Content-Length': fileSize,
                                     'Content-Type': contentType,
                                 }
                                 res.writeHead(200, head);
-                                stream(res, filePath, 0, fileSize);
+                                stream(res, filePath, 0, fileSize,contentType);
                             }
                         }
                         
@@ -353,7 +378,6 @@ export async function addToWatched(req,res){
                 "ImdbID" : req.params.imdb_id,
                 "Title" : themoviedb.data.title,
                 "Poster" : "https://image.tmdb.org/t/p/w500" + themoviedb.data.poster_path,
-        
             }
             await User.updateOne({ _id:req.userid },{ $addToSet : { watched :data }},(err) => {
                 if(err) return res.status(400).json({ error:"file to add to watched" });
