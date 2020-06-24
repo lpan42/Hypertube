@@ -27,8 +27,11 @@ import UserState from '../../contexts/user/UserState';
 import UserContext from '../../contexts/user/userContext';
 import Popover from '@material-ui/core/Popover';
 import Slider from '@material-ui/core/Slider';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
+import FirstPageIcon from '@material-ui/icons/FirstPage';
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import LastPageIcon from '@material-ui/icons/LastPage';
 
 const Search = () => {
     const movieContext = useContext(MovieContext);
@@ -36,18 +39,23 @@ const Search = () => {
     const { fetchmovie, movies, loading, searchByKeyword } = movieContext;
     const { loadUser, user } = userContext;
     const [language, setLanguage] = useState(en);
+
     const [searchInput, setSearchInput] = useState('');
     const [addwatchLater, setAddWatchLater] = useState('');
     const [removewatchLater,setRemoveWatchLater] = useState('');
     const [genre, setGenre] = useState('');
+    const [yearrange, setYearrange] = useState([1900, 2020])
+    const [ratingrange, setRatingrange] = useState([0, 10])
+
+    const [search, setSearch] = useState(false);
+
     const [success, setSuccess] = useState('');
     const [isFetching, setIsFetching] = useState(true);
     const [error, setError] = useState(false);
 
     const [page, setPage] = useState(1);
 
-    const [yearrange, setYearrange] = useState([1900, 2020])
-    const [ratingrange, setRatingrange] = useState([0, 10])
+
 
     const [watchLaterList, setwatchLaterList] = useState({})
 
@@ -61,11 +69,6 @@ const Search = () => {
     };
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
-    
-    // useEffect(() => {
-    //     fetchmovie()
-    //     setIsFetching(false);
-    // }, [])
 
     useEffect(() => {
         if (user){
@@ -75,19 +78,17 @@ const Search = () => {
     }, [user])
 
     useEffect(() => {
-        const setQuery = (searchInput) => {
-            const searchMovieTrimmed = TrimInputStr(searchInput);
-            return (searchMovieTrimmed);
-        }
-        
-        if (!TrimInputStr(searchInput) && genre.length === 0 && yearrange[0] === 1900 && yearrange[1] === 2020 && ratingrange[0] === 0 && ratingrange[1] === 10){
-            fetchmovie()
-        }else{
-            setIsFetching(true);
-            searchByKeyword(TrimInputStr(searchInput), genre, yearrange, ratingrange, page);
-        }
+        setIsFetching(true);
+        searchByKeyword(TrimInputStr(searchInput), genre, yearrange, ratingrange, page);
         setIsFetching(false);
-    }, [searchInput, genre, yearrange, ratingrange, page])
+        setSearch(false);
+        console.log(page)
+    }, [search, page])
+
+    useEffect(() => {
+        setPage(1);
+        setSearch(true);
+    }, [searchInput, genre, yearrange, ratingrange])
 
     useEffect(()=> {
         const addWatchLaterList = async() => {
@@ -156,6 +157,15 @@ const Search = () => {
         }
     }, [movies, watchLaterList])
 
+    const checkPage = (page) => {
+        if (page - 1 < 1){
+            return (1);
+            //alert ?: first page already
+        // }else if (page + 1 > (17750 / 30)){
+        }else{
+            return (page)
+        }
+    }
     return (
         <Fragment>
             <div className="ui search">
@@ -163,10 +173,13 @@ const Search = () => {
                 <input className="prompt" type="text" placeholder={language.filter.search} onChange={e => setSearchInput(e.target.value)}/>
                 <i className="search icon"></i>
             </div>
-            
             <Button aria-describedby={id} variant="contained" style={{float: 'right'}} onClick={popoverhandleClick}>
                 {language.filter.filter}
             </Button>
+            <FirstPageIcon style={{margin: '2em 0.5em', cursor: 'pointer'}} onClick={() => {setPage(1)}}/>
+            <NavigateBeforeIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}onClick={() => setPage(checkPage(page - 1))}/>
+            <NavigateNextIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}onClick={() => setPage(checkPage(page + 1))}/>
+            <LastPageIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}/>
             <Popover id={id} open={open} 
                         anchorEl={anchorEl} onClose={popoverhandleClose} 
                         anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} 
@@ -206,7 +219,6 @@ const Search = () => {
                 </FormControl>
                 </div>
             </Popover>
-            <div><NavigateNextIcon style={{padding: '20', cursor: 'pointer'}} onClick={() => setPage(page + 1)}/></div>
             <div className="ui divider" style={{margin: '3em'}}></div>
             <div className="ui centered grid">
             {isFetching ? <Spinner/> :

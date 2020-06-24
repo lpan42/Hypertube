@@ -481,7 +481,7 @@ export async function addToWatched(req,res){
         }else{
             return res.status(200);
         }
-      });
+    });
 }
 
 export async function getmoviedata(req, res){
@@ -526,10 +526,12 @@ export async function searchMovie(req, res){
         if (err) { 
             return (res.status(500).json({error: "Fail to fetch Database"}))
         }
-        if (result.length !== 0){
+        if (result && result.length === 30){
             return(res.status(200).json({ data: result }))
-        }else {
+        }else if(result && result.length < 30){
+            return(res.status(200).json({ data: result }));
+        }else{
             return (getmoviedata(req, res));
         }
-    }).sort(SortBy(keyword, criteria)).limit(30);
+    }).sort(SortBy(keyword, criteria)).skip((req.body.page - 1) * 30).limit(30);
 }

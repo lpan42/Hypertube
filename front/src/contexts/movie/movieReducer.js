@@ -9,7 +9,7 @@ export default (state, action) => {
                 return {
                     ...state,
                     loading: false,
-                    movies: action.payload
+                    movies: action.payload,
                 }
             case FETCH_ERROR:
                 return {
