@@ -13,6 +13,8 @@ import Login from './components/user/Login';
 import Account from './components/user/Account';
 import OAuthValid from './components/user/OAuthValid';
 import Movie from './components/movie/Movie';
+import RequestResetPwd from './components/user/RequestResetPwd';
+import ResetPwd from "./components/user/ResetPwd";
 import UserState from './contexts/user/UserState';
 
 import { createMuiTheme } from '@material-ui/core/styles';
@@ -77,6 +79,8 @@ const App = () => {
 							<Route exact path='/oAuthValid/:token' component={OAuthValid} />
 							<Route exact path='/register' component={Register} />
 							<Route exact path='/login' component={Login} />
+							<Route exact path="/resetpwd_request" component={RequestResetPwd} />
+							<Route exact path="/resetpwd/:resetpwd_link" component={ResetPwd} />
 							</Switch>
 						</div>
 						{/* <Footer /> */}

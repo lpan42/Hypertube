@@ -6,9 +6,9 @@ const auth = require('../middleware/auth');
 router.route('/register').post(userController.register);
 router.route('/login').post(userController.login);
 router.route('/auth').get(auth, userController.authUser);
-// router.route('/resetpwd/:input').get(userController.resetpwd);
-// router.route('/verifypwdlink/:resetpwd_link').get(userController.verifyPwdLink);
-// router.route('/updatepwd').post(userController.updatepwd);
+router.route('/resetpwd/:input').get(userController.resetpwd);
+router.route('/verifypwdlink/:resetpwd_link').get(userController.verifyPwdLink);
+router.route('/updatepwd').post(userController.updatepwd);
 router.route('/logout').get(auth, userController.logout);
 
 //getInfo

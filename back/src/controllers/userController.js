@@ -1,5 +1,5 @@
 const User = require('../models/user');
-// const emailSender = require('../models/emailSender');
+const emailSender = require('../models/emailSender');
 const crypto = require('crypto');
 const sanitize = require('mongo-sanitize');
 const passport = require("passport");
@@ -164,42 +164,52 @@ export async function modifyAccount(req,res){
     req.session.user = result;
     return res.status(200).json({ success: 'Account has been successfully updated' });
 }
-// export async function resetpwd(req,res){
-//     let email = null;
-//     let username = null;
-//     const checkUsername = await userModel.checkUsername(req.params.input);
-//     if(!checkUsername[0]){
-//         const checkEmail = await userModel.checkEmail(req.params.input);
-//         if(!checkEmail[0]){
-//             return res.status(400).json({ error: "Username/Email does not exist" });
-//         }
-//         email = checkEmail[0].email;
-//         username = checkEmail[0].username;
-//     }
-//         email = checkUsername[0].email;
-//         username = checkUsername[0].username;
-//     }
-//     const resetpwd_link = crypto.randomBytes(10).toString('hex');
-//     await userModel.updateResetpwdLink(username, resetpwd_link);
-//     await emailSender.resetpwd(email, username,resetpwd_link);
-//     return res.status(200).json({ success: "An email has been sent to your email, please check to reset your password" });
-// }
 
-// export async function verifyPwdLink(req,res){
-//     const username = await userModel.verifyPwdLink(req.params.resetpwd_link);
-//     if(!username){
-//         return res.status(400).json({ error: "Link is not valid, you can make a new request" });
-//     }
-//     return res.status(200).json({ 
-//         success: "Link validate, you can reset your password",
-//         data: username
-//     });
-// }
+export async function resetpwd(req,res){
+    let email = null;
+    let username = null;
+    const checkUsername = await User.findOne({username : sanitize(req.params.input.toLowerCase())});
+    if(!checkUsername){
+        const checkEmail = await User.findOne({email : sanitize(req.params.input.toLowerCase())});
+        if(!checkEmail){
+            return res.status(400).json({ error: "Username/Email does not exist" });
+        }
+        email = checkEmail.email;
+        username = checkEmail.username;
+    }
+    else{
+        email = checkUsername.email;
+        username = checkUsername.username;
+    }
+    if(!email){
+        return res.status(400).json({ error: "You account was authoritized and created from other website, and your registed email is empty. Please try to login with google/github/42." });
+    }
+    const resetpwd_link = crypto.randomBytes(10).toString('hex');
+    await User.findOneAndUpdate({username:username}, {$set: {resetPwdLink: resetpwd_link}});
+    await emailSender.resetpwd(email, username,resetpwd_link);
+    return res.status(200).json({ success: "An email has been sent to your email, please check to reset your password" });
+}
 
-// export async function updatepwd(req,res){
-//     await userModel.updatepwd(req.body.username, req.body.password);
-//     return res.status(200).json({ 
-//         success: "Password updated, you may login now"
-//     });
-// }
+export async function verifyPwdLink(req,res){
+    const user = await User.findOne({ resetPwdLink: req.params.resetpwd_link})
+    if(!user)
+        return res.status(400).json({ error: "Link is not valid, you can make a new request" });
+    return res.status(200).json({ 
+        success: "Link validate, you can reset your password",
+        data: user.username
+    });
+}
 
+export async function updatepwd(req,res){
+    User.findOneAndUpdate({ username:sanitize(req.body.username) }, {$set: {resetPwdLink: null}},(err, user) => {
+        if(err) console.log(err);
+        user.setPassword(req.body.password, ()=>{
+            user.save().catch(err => {
+                console.error(err);
+            })
+        })
+    });  
+    return res.status(200).json({ 
+        success: "Password updated, you may login now"
+    });
+}

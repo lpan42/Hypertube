@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
         marginTop: "8%",
         textAlign:"center",
         backgroundColor: fade("#FFFFFF", 0.5),
-        height:300,
+        height:320,
         minWidth: 250,
         maxWidth:350,
     },
@@ -138,6 +138,7 @@ const Login = (props) => {
                         <Button color="primary" onClick={authGithub}><img className={classes.logoImg} src={LogoGithub}/></Button>
                     </div>
                     <Typography variant="subtitle2" color="secondary">Don't have an account? <Link to='Register'>Register</Link></Typography>
+                    <Typography variant="subtitle2" color="secondary">Forget you password? <Link to='resetpwd_request'>Reset My Password</Link></Typography>
                 </CardContent>
             </Card>
         </div>
