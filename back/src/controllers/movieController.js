@@ -99,7 +99,7 @@ export async function getMovieinfo(req, res){
         const themoviedb = await axios.get(
             `https://api.themoviedb.org/3/movie/${req.params.imdb_id}?api_key=d022dfadcf20dc66d480566359546d3c&language=${req.params.langPrefer}`
         )
-        console.log(themoviedb.data)
+        // console.log(themoviedb.data)
         const omdi = await axios.get(
             `http://www.omdbapi.com/?i=${req.params.imdb_id}&apikey=35be5a73`
         )
@@ -173,19 +173,40 @@ export async function getMovieinfo(req, res){
 }
 
 export async function addWatchLater(req, res){
-    const themoviedb = await axios.get(
-        `https://api.themoviedb.org/3/movie/${req.params.imdb_id}?api_key=d022dfadcf20dc66d480566359546d3c`
-    )
-    const data = {
-        "ImdbID" : req.params.imdb_id,
-        "Title" : themoviedb.data.title,
-        "Poster" : "https://image.tmdb.org/t/p/w500" + themoviedb.data.poster_path,
-
+    try{
+        const themoviedb = await axios.get(
+            `https://api.themoviedb.org/3/movie/${req.params.imdb_id}?api_key=d022dfadcf20dc66d480566359546d3c`
+        )
+        const data = {
+            "ImdbID" : req.params.imdb_id,
+            "Title" : themoviedb.data.title,
+            "Poster" : "https://image.tmdb.org/t/p/w500" + themoviedb.data.poster_path,
+    
+        }
+        await User.updateOne({ _id:req.userid },{ $addToSet : { watchLater :data }},(err) => {
+            if(err) return res.status(400).json({ error:"Update failed" });
+        });
+        return res.status(200).json({ success: "Add to watchlater list" });
+    }catch(err){
+        const omdi = await axios.get(
+            `http://www.omdbapi.com/?i=${req.params.imdb_id}&apikey=35be5a73`
+        )
+        if(omdi.data.Response!=="False"){
+            const data = {
+                "ImdbID" : req.params.imdb_id,
+                "Title" : omdi.data.Title,
+                "Poster" : omdi.data.Poster,
+        
+            }
+            await User.updateOne({ _id:req.userid },{ $addToSet : { watchLater :data }},(err) => {
+                if(err) return res.status(400).json({ error:"Update failed" });
+            });
+            return res.status(200).json({ success: "Add to watchlater list" });
+        }
+        else{
+            return res.status(400).json({ error:"Fail to add to  watchlater list" });
+        }
     }
-    await User.updateOne({ _id:req.userid },{ $addToSet : { watchLater :data }},(err) => {
-        if(err) return res.status(400).json({ error:"Update failed" });
-    });
-    return res.status(200).json({ success: "Add to watchlater list" });
 }
 
 
@@ -410,24 +431,45 @@ export function streamMovie(req,res){
 }
 
 export async function addToWatched(req,res){
-    User.findOne({ _id: req.userid }, { watched:{ $elemMatch:{ ImdbID: req.params.imdb_id }}},
+    // console.log("call")
+   await User.findOne({ _id: req.userid }, { watched:{ $elemMatch:{ ImdbID: req.params.imdb_id }}},
         async (err, watched) => {
         if (err) console.log(err);
         if(!watched.watched.length){
-            const themoviedb = await axios.get(
-                `https://api.themoviedb.org/3/movie/${req.params.imdb_id}?api_key=d022dfadcf20dc66d480566359546d3c`
-            )
-            const data = {
-                "ImdbID" : req.params.imdb_id,
-                "Title" : themoviedb.data.title,
-                "Poster" : "https://image.tmdb.org/t/p/w500" + themoviedb.data.poster_path,
+            try{
+                const themoviedb = await axios.get(
+                    `https://api.themoviedb.org/3/movie/${req.params.imdb_id}?api_key=d022dfadcf20dc66d480566359546d3c`
+                )
+                const data = {
+                    "ImdbID" : req.params.imdb_id,
+                    "Title" : themoviedb.data.title,
+                    "Poster" : "https://image.tmdb.org/t/p/w500" + themoviedb.data.poster_path,
+                }
+                await User.updateOne({ _id:req.userid },{ $addToSet : { watched :data }},(err) => {
+                    if(err) return res.status(400).json({ error:"file to add to watched" });
+                });
+                return res.status(200);
+            }catch(err){
+                const omdi = await axios.get(
+                    `http://www.omdbapi.com/?i=${req.params.imdb_id}&apikey=35be5a73`
+                )
+                if(omdi.data.Response!=="False"){
+                    const data = {
+                        "ImdbID" : req.params.imdb_id,
+                        "Title" : omdi.data.Title,
+                        "Poster" : omdi.data.Poster,
+                    }
+                    await User.updateOne({ _id:req.userid },{ $addToSet : { watched :data }},(err) => {
+                        if(err) return res.status(400).json({ error:"file to add to watched" });
+                    });
+                    return res.status(200);
+                }else{
+                    return res.status(400).json({ error:"Fail to add to  watched list" });
+                }
             }
-            await User.updateOne({ _id:req.userid },{ $addToSet : { watched :data }},(err) => {
-                if(err) return res.status(400).json({ error:"file to add to watched" });
-            });
-            return res.status(200);
         }else{
             return res.status(200);
         }
       });
+    return res.status(200);
 }

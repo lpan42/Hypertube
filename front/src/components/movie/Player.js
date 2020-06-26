@@ -156,7 +156,7 @@ const MoviePlayer = ({ imdb_id }) => {
             try{
                 await axios.post(`/movie/watched/add/${imdb_id}`);
             }catch(err){
-                setError(err.response.data.error);
+                console.log(err);
             }
         }
     }
@@ -173,7 +173,7 @@ const MoviePlayer = ({ imdb_id }) => {
                 poster={singleMovie.Poster} 
                 preload="auto" 
                 src={videoSrc} 
-                onPlay={OnPlay}
+                onPlay={()=>OnPlay()}
             >
                 <track label={currentSub} kind="subtitles" src={subSrc} default></track>
             <ControlBar>
