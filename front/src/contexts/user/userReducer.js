@@ -11,7 +11,7 @@ import {
     NORMAL_ERROR,
     CLEAR_SUCCESS,
     CLEAR_ERROR,
-    SET_TOKEN
+    SET_TOKEN,
 } from '../types';
 
 

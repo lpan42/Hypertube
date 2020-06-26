@@ -227,3 +227,9 @@ export async function updatepwd(req,res){
         success: "Password updated, you may login now"
     });
 }
+// export async function updatepwd(req,res){
+//     await userModel.updatepwd(req.body.username, req.body.password);
+//     return res.status(200).json({ 
+//         success: "Password updated, you may login now"
+//     });
+// }

@@ -90,7 +90,7 @@ const UserState = props => {
             })
         }
     }
-    
+
     const logout = async () => {
         setAuthToken(localStorage.token);
         try {

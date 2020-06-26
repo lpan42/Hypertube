@@ -492,17 +492,28 @@ function CreateMongoQuery(queryProp,value){
 }
 
 function SortBy(keyword, criteria){
-    if (keyword !== null){
-        return ({Title: 1})
-    }else{
+    // if (keyword !== null){
+    //     return ({Title: 1})
+    // }else{
         return({[criteria]: -1})
+    // }
+}
+
+function setCriteria(sortBy){
+    if (sortBy === "Title"){
+        return ("Title");
+    }else if (sortBy === 'ImdbRating'){
+        return ('ImdbRating')
+    }else if (sortBy === 'DateDes' || sortBy === 'DateAsc'){
+        return ("Year")
     }
 }
 
 export async function searchMovie(req, res){
     const genre = req.body.genre.length === 0 ? null : req.body.genre;
     const keyword = req.body.keyword.length === 0 ? null : new RegExp(req.body.keyword, 'i');
-    const criteria = 'ImdbRating';
+    const criteria = setCriteria(req.body.sortBy);
+    console.log(req.body.sortBy)
     const result = await Movie.find({ $and: [
         CreateMongoQuery('Title', keyword),
         CreateMongoQuery('Genre', genre),

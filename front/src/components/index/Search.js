@@ -11,6 +11,7 @@ import StarIcon from '@material-ui/icons/Star';
 import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
 import BookmarkIcon from '@material-ui/icons/Bookmark';
 import Button from '@material-ui/core/Button';
+
 /******************** package ********************/
 import { toast } from 'react-toastify';
 
@@ -44,6 +45,7 @@ const Search = () => {
     const [addwatchLater, setAddWatchLater] = useState('');
     const [removewatchLater,setRemoveWatchLater] = useState('');
     const [genre, setGenre] = useState('');
+    const [sortBy, setSortBy] = useState('ImdbRating');
     const [yearrange, setYearrange] = useState([1900, 2020])
     const [ratingrange, setRatingrange] = useState([0, 10])
 
@@ -54,11 +56,8 @@ const Search = () => {
     const [error, setError] = useState(false);
 
     const [page, setPage] = useState(1);
-
-
-
-    const [watchLaterList, setwatchLaterList] = useState({})
-
+    
+    const [watchLaterList, setwatchLaterList] = useState([])
 
     const [anchorEl, setAnchorEl] = React.useState(null);
     const popoverhandleClick = (event) => {
@@ -73,45 +72,57 @@ const Search = () => {
     useEffect(() => {
         if (user){
             const watchLaterList = user.data.watchLater;
-            setwatchLaterList(watchLaterList)
+            setwatchLaterList([...watchLaterList])
         }
     }, [user])
 
     useEffect(() => {
-        setIsFetching(true);
-        searchByKeyword(TrimInputStr(searchInput), genre, yearrange, ratingrange, page);
-        setIsFetching(false);
-        setSearch(false);
-        console.log(page)
-    }, [search, page])
+        if (searchInput !== ''){
+            setSortBy('Title');
+        }else{
+            setSortBy('ImdbRating')
+        }
+        setSearch(true);
+    }, [searchInput])
 
     useEffect(() => {
-        setPage(1);
-        setSearch(true);
-    }, [searchInput, genre, yearrange, ratingrange])
+        setPage(1)
+    }, [search])
 
-    useEffect(()=> {
-        const addWatchLaterList = async() => {
-            const result = await axios.post(`/movie/watchlater/add/${addwatchLater}`);
-        }
+    useEffect(() => {
+        setIsFetching(true);
+        searchByKeyword(TrimInputStr(searchInput), genre, yearrange, ratingrange, page, sortBy);
+        setIsFetching(false);
+        setSearch(false);
+    }, [search, page])
 
-        if (addwatchLater.length !== 0 ){
-            addWatchLaterList();
-        }
+    // useEffect(() => {
+    //     setPage(1);
+    //     setSearch(true);
+    // }, [searchInput, genre, yearrange, ratingrange, sortBy])
+
+    const addWatchLaterList = async() => {
+        await axios.post(`/movie/watchlater/add/${addwatchLater}`);
         setAddWatchLater('');
         loadUser()
+    }
+
+    useEffect(() => {
+        if (addwatchLater !== '' ){
+            addWatchLaterList();
+        }
     }, [addwatchLater])
 
-    useEffect(()=> {
-        const removeWatchLaterList = async() => {
-            const result = await axios.post(`/movie/watchlater/remove/${removewatchLater}`);
-        }
-
-        if (removewatchLater.length !== 0 ){
-            removeWatchLaterList();
-        }
+    const removeWatchLaterList = async() => {
+        await axios.post(`/movie/watchlater/remove/${removewatchLater}`);
         setRemoveWatchLater('');
         loadUser()
+    }
+
+    useEffect(()=> {
+        if (removewatchLater !== ''){
+            removeWatchLaterList();
+        }
     }, [removewatchLater])
 
     const inWatchLaterList = (List, movie) => {
@@ -130,13 +141,13 @@ const Search = () => {
             return movies.data.map((movie, key) => (
                 <div className="card" key={key}>
                     <div className="ui slide masked reveal image" style={{backgroundColor: 'black'}}>
-                        <img src={movie.Poster} className="visible content"/>
+                        <img src={movie.Poster} className="visible content" onError={(e)=>{e.target.onerror = null; e.target.src='/images/No_Picture.jpg'}}/> 
                         <div className="hidden content center aligned">
                             <Typography variant="subtitle2">
                                 <span style={{fontSize: 16}}>
                                 {inWatchLaterList(watchLaterList, movie.ImdbId) ? 
                                     <BookmarkIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer', color: 'red'}} onClick={() => setRemoveWatchLater(movie.ImdbId)}/>
-                                    : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => {setAddWatchLater(movie.ImdbId)}}/>}
+                                    : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => setAddWatchLater(movie.ImdbId)}/>}
                                 {movie.Plot}
                                 <br/><br/>
                                 </span>
@@ -166,6 +177,7 @@ const Search = () => {
             return (page)
         }
     }
+    console.log(movies)
     return (
         <Fragment>
             <div className="ui search">
@@ -179,11 +191,8 @@ const Search = () => {
             <FirstPageIcon style={{margin: '2em 0.5em', cursor: 'pointer'}} onClick={() => {setPage(1)}}/>
             <NavigateBeforeIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}onClick={() => setPage(checkPage(page - 1))}/>
             <NavigateNextIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}onClick={() => setPage(checkPage(page + 1))}/>
-            <LastPageIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}/>
-            <Popover id={id} open={open} 
-                        anchorEl={anchorEl} onClose={popoverhandleClose} 
-                        anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} 
-                        transformOrigin={{vertical: 'top', horizontal: 'center'}}>
+            <LastPageIcon style={{margin: '2em 0.5em', cursor: 'pointer' }}/>
+            <Popover id={id} open={open} anchorEl={anchorEl} onClose={popoverhandleClose} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} transformOrigin={{vertical: 'top', horizontal: 'center'}}>
                 <div style={{width: 200, padding: '1.5em'}}>
                 <Typography variant="body2">{language.filter.year} {yearrange[0]} - {yearrange[1]}</Typography>
                 <Slider value={yearrange} min={1900} max={2020} step={5}  onChange={(e,settingyearrange)=>{setYearrange(settingyearrange)}}/>
@@ -217,12 +226,21 @@ const Search = () => {
                         <Button value="Western">{language.movietype.Western}</Button>
                     </Select>
                 </FormControl>
+                <FormControl stylr={{float: 'left', backgroundColor: 'white', margin: '2em'}}>
+                    <Select value={sortBy} onChange={e=>setSortBy(e.target.value)}>
+                        <Button value="ImdbRating">{language.sortby.ImdbRating}</Button>
+                        <Button value="Title">{language.sortby.Title}</Button>
+                        <Button value="DateAsc">{language.sortby.DateAsc}</Button>
+                        <Button value="DateDsc">{language.sortby.DateDsc}</Button>
+                    </Select>
+                </FormControl>
                 </div>
+                <Button color={'primary'} style={{float: 'right'}} onClick={e => setSearch(true)}>Submit</Button>
             </Popover>
-            <div className="ui divider" style={{margin: '3em'}}></div>
+            <div className="ui divider" style={{margin: '0em 0em 3em 0em'}}></div>
             <div className="ui centered grid">
             {isFetching ? <Spinner/> :
-                <div className='ui six doubling stackable cards'>
+                <div className='ui doubling stackable cards'>
                     {filmList}
                 </div>
             }

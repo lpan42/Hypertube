@@ -67,5 +67,11 @@
         "searchforamovie" : "Search for a film...",
         "sort" : "Sort Results By",
         "search" : "Search"
+    },
+    "sortby" : {
+        "ImdbRating" : "ImdbRating",
+        "Title" : "Title",
+        "DateAsc" : "DateAsc",
+        "DateDsc" : "DateDsc"
     }
 }

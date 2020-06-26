@@ -18,7 +18,7 @@ const MovieState = props => {
 
     const [state, dispatch] = useReducer(MovieReducer, initialState);
 
-    const searchByKeyword = async (keyword, genre, yearrange, ratingrange, page) => {
+    const searchByKeyword = async (keyword, genre, yearrange, ratingrange, page, sortBy) => {
         setAuthToken(localStorage.token);
         try{
             const config = {
@@ -29,7 +29,8 @@ const MovieState = props => {
                 keyword: keyword,
                 yearrange: yearrange,
                 ratingrange: ratingrange,
-                page: page
+                page: page,
+                sortBy: sortBy,
             }; 
             const result = await axios.post(`/movie/searchmovie`, data, config);
             dispatch({
