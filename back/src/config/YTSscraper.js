@@ -38,7 +38,8 @@ export async function scrapYTS(){
   console.log(count_movies)
 
   for(let i = 1; i <= count_movies/50; i++){
-        let result = await cloudflareScraper.get(`https://yts.mx/api/v2/list_movies.json?limit=50&page=${i}`);
+    try{
+      let result = await cloudflareScraper.get(`https://yts.mx/api/v2/list_movies.json?limit=50&page=${i}`);
         result = JSON.parse(result);
         result.data.movies.map((movie) => {
           let torrents = [];
@@ -71,7 +72,10 @@ export async function scrapYTS(){
           })
         })
         console.log(i);
+    }catch(err){
+      console.log(err)
     }
+  }
     
     // console.log("adding French")
     // for(let p in processed){

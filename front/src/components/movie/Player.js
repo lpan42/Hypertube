@@ -119,12 +119,12 @@ const MoviePlayer = ({ imdb_id }) => {
         //eslint-disable-next-line
     },[currentSub])
     // 
-    // useEffect(()=> {
-    //     if(error){
-    //         alert(error);
-    //         setError('')
-    //     }
-    // },[error]);
+    useEffect(()=> {
+        if(error){
+            alert(error);
+            setError('')
+        }
+    },[error]);
 
     const selectTorrent = async (e) => {
         setCurrentMovie(
@@ -166,7 +166,7 @@ const MoviePlayer = ({ imdb_id }) => {
             <MenuItem key={key} value={key} onClick={e=>selectTorrent(e)}>{torrent.quality}{torrent.provider}</MenuItem>
         )
     })
-
+    console.log(singleMovie.Poster)
     
     const player = (
         <div className={classes.palyerDiv}>
