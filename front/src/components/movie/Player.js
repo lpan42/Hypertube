@@ -166,7 +166,6 @@ const MoviePlayer = ({ imdb_id }) => {
             <MenuItem key={key} value={key} onClick={e=>selectTorrent(e)}>{torrent.quality}{torrent.provider}</MenuItem>
         )
     })
-    console.log(singleMovie.Poster)
     
     const player = (
         <div className={classes.palyerDiv}>
