@@ -4,14 +4,14 @@ const mongoose = require("mongoose");
 const cloudflareScraper = require('cloudflare-scraper');
 
 async function connection(){
-  mongoose.connect("mongodb://localhost:27017/hypertube", {
+  await mongoose.connect("mongodb://localhost:27017/hypertube", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,
     useCreateIndex: true,
   });
 
-  mongoose.connection.db.listCollections({name: 'movies'})
+  await mongoose.connection.db.listCollections({name: 'movies'})
     .next(function(err, collinfo) {
         if (collinfo) {
           mongoose.connection.dropCollection("movies", err =>{
@@ -19,6 +19,68 @@ async function connection(){
         });
       }
     });
+}
+
+async function countMoviesPagePOP(){
+  try{
+    const config = {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    }
+    let count = await axios.get('https://cors-anywhere.herokuapp.com/movies-v2.api-fetch.sh/movies',config);
+    return count.data.length;
+  }catch(err){
+    console.log(err.response)
+  }
+}
+
+async function scrapPOP(){
+  await mongoose.connect("mongodb://localhost:27017/hypertube", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
+  });
+  console.log("Start to scrap Popcorn")
+const count_movies = await countMoviesPagePOP();
+for(let i = 1; i <= count_movies; i++){
+  try{
+      const config = {
+          headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+          }
+      }
+      let result = await axios.get(`https://cors-anywhere.herokuapp.com/movies-v2.api-fetch.sh/movies/${i}`, config);
+      result.data.map((movie) => {
+          Movie.findOne({ImdbId:movie.imdb_id},(err,res)=>{
+              if(err) console.log(err);
+              if(res){
+                  for (let lang in movie.torrents) {
+                      for (const p in movie.torrents[lang]) {
+                        const torrent = {
+                          url: movie.torrents[lang][p].url,
+                          quality: p,
+                          seeds: movie.torrents[lang][p].seed,
+                          peers: movie.torrents[lang][p].peer,
+                          size_bytes: movie.torrents[lang][p].size,
+                          size: movie.torrents[lang][p].filesize,
+                          provider: "Popcorn"
+                        };
+                        Movie.updateOne({ ImdbId:movie.imdb_id },{$push:{Torrents: torrent}}, (err,res)=> {
+                            if(err) console.log(err);
+                        })
+                      }
+                  }
+              }
+          })
+      })
+      console.log("Scraping PopCorn Page " + i);
+  }catch(err){
+    console.log(err.response)
+  }
+}
+  console.log(" POPCORN adding to DB")
 }
 
 async function countMovies(){
@@ -31,11 +93,11 @@ async function countMovies(){
   }
 }
 
-export async function scrapYTS(){
+async function scrapYTS(){
   connection();
+  console.log("Start to scrap YTS")
   let processed = [];
   const count_movies = await countMovies();
-  console.log(count_movies)
 
   for(let i = 1; i <= count_movies/50; i++){
     try{
@@ -71,9 +133,9 @@ export async function scrapYTS(){
             "Torrents": torrents,
           })
         })
-        console.log(i);
+        console.log("Scraping YTS Page " + i);
     }catch(err){
-      console.log(err)
+      console.log(err.response)
     }
   }
     
@@ -91,9 +153,14 @@ export async function scrapYTS(){
     //     processed[p].PlotFR = processed[p].Plot;
     //   }
     // }
-    console.log(processed.length);
-    console.log("adding to DB")
+    
     Movie.insertMany(processed, err =>{
       if(err) console.log(err)
     })
+    console.log(" YTS adding to DB");
+    
+    await scrapPOP();
 }
+
+// scrapPOP();
+scrapYTS();
