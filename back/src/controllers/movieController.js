@@ -227,20 +227,27 @@ export async function getSingleMovie(req,res){
 }
 
 export async function convertMovieTypeAndStream(res, filePath, start, end){
-   
-    const stream = fs.createReadStream(filePath);
-    ffmpeg(stream)
-    .format("webm")
-    .on("start", commandLine => {
-        console.log('Spawned Ffmpeg with command: ' + commandLine);
+    let stream = fs.createReadStream(filePath
+        // , {
+        // start: start,
+        // end: end
+        // }
+    );
+    stream.on('open',() => {
+        const output = ffmpeg(stream).format("mp4")
+        .outputOptions('-movflags frag_keyframe')
+        .audioCodec('copy')
+        .on("start", commandLine => {
+            console.log('Spawned Ffmpeg with command: ' + commandLine);
+        })
+        .on('error', err => {
+            console.log('An error occurred: ' + err.message);
+        })
+        .on('end', () => {
+            console.log('Processing finished !');
+        })
+        output.pipe(res);
     })
-    .on('error', err => {
-        console.log('An error occurred: ' + err.message);
-    })
-    .on('end', () => {
-        console.log('Processing finished !');
-    })
-    .pipe(res);
 }
 
 export function stream(res, filePath, start, end,contentType){
@@ -399,12 +406,10 @@ export function streamMovie(req,res){
                                 contentType = 'video/webm';
                             const range = req.headers.range;
                             if (range) {
-                                console.log(range)
                                 const parts = range.replace(/bytes=/, "").split("-");
                                 const start = parseInt(parts[0], 10);
                                 const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
                                 const chunksize = (end - start) + 1;
-                                console.log(chunksize)
                                 const head = {
                                     'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                                     'Accept-Ranges': 'bytes',
@@ -433,7 +438,7 @@ export function streamMovie(req,res){
 export async function addToWatched(req,res){
    await User.findOne({ _id: req.userid }, { watched:{ $elemMatch:{ ImdbID: req.params.imdb_id }}},
         async (err, watched) => {
-        if (err) console.log(err);
+        if (err) return res.status(400).json({ error:"Fail to add to  watched list" });
         if(!watched.watched.length){
             try{
                 const themoviedb = await axios.get(
@@ -449,20 +454,24 @@ export async function addToWatched(req,res){
                 });
                 return res.status(200);
             }catch(err){
-                const omdi = await axios.get(
-                    `http://www.omdbapi.com/?i=${req.params.imdb_id}&apikey=35be5a73`
-                )
-                if(omdi.data.Response!=="False"){
-                    const data = {
-                        "ImdbID" : req.params.imdb_id,
-                        "Title" : omdi.data.Title,
-                        "Poster" : omdi.data.Poster,
+                try{
+                    const omdi = await axios.get(
+                        `http://www.omdbapi.com/?i=${req.params.imdb_id}&apikey=35be5a73`
+                    )
+                    if(omdi.data.Response!=="False"){
+                        const data = {
+                            "ImdbID" : req.params.imdb_id,
+                            "Title" : omdi.data.Title,
+                            "Poster" : omdi.data.Poster,
+                        }
+                        await User.updateOne({ _id:req.userid },{ $addToSet : { watched :data }},(err) => {
+                            if(err) return res.status(400).json({ error:"file to add to watched" });
+                        });
+                        return res.status(200);
+                    }else{
+                        return res.status(400).json({ error:"Fail to add to  watched list" });
                     }
-                    await User.updateOne({ _id:req.userid },{ $addToSet : { watched :data }},(err) => {
-                        if(err) return res.status(400).json({ error:"file to add to watched" });
-                    });
-                    return res.status(200);
-                }else{
+                }catch(err){
                     return res.status(400).json({ error:"Fail to add to  watched list" });
                 }
             }

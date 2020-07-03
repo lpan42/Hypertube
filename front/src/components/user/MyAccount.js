@@ -105,13 +105,13 @@ const MyAccount = () => {
             <Divider classes={{root: classes.dividerColor}}/>
             <div>
               <Typography variant="subtitle1" style={{textAlign:"right"}}>{lang.account.watchlaterlist}</Typography>
-              <Watch movies={user && user.data.watchLater} language={lang}/>
+              <Watch movies={user && user.data.watchLater}/>
             </div>
             <br></br>
             <Divider classes={{root: classes.dividerColor}}/>
             <div>
               <Typography variant="subtitle1" style={{textAlign:"right"}}>{lang.account.moviewatched}</Typography>
-              <Watch movies={user && user.data.watched} language={lang}/>
+              <Watch movies={user && user.data.watched}/>
             </div>
            
         </div>

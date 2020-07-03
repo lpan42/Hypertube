@@ -75,13 +75,13 @@ const VisitAccount = ({accountInfo}) => {
                 <Divider classes={{root: classes.dividerColor}}/>
                 <div>
                 <Typography variant="subtitle1" style={{textAlign:"right"}}>{lang.account.watchlaterlist}</Typography>
-                <Watch movies={accountInfo.watchLater} language={lang}/>
+                <Watch movies={accountInfo.watchLater}/>
                 </div>
                 <br></br>
                 <Divider classes={{root: classes.dividerColor}}/>
                 <div>
                 <Typography variant="subtitle1" style={{textAlign:"right"}}>{lang.account.moviewatched}</Typography>
-                <Watch movies={accountInfo.watched} language={lang}/>
+                <Watch movies={accountInfo.watched}/>
                 </div>
             </div>
         </div>

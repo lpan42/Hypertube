@@ -1,4 +1,4 @@
-import React,{Fragment} from 'react';
+import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
 import Card from '@material-ui/core/Card';
@@ -10,22 +10,22 @@ const useStyles = makeStyles(theme => ({
     cardDiv: {
         display:"flex",
         flexWrap:"wrap",
-        justifyContent:"center",
-        alignContent:"center",
-        overflow:"auto",
-        maxHeight:"480px",
+        // justifyContent:"center",
+        overflow: "auto",
+        height:"500px",
     },
     card: {
         margin:"5px",
-        minWidth:130,
-        maxWidth:150,
+        width:140,
+        // minWidth:130,
+        // maxWidth:150,
     },
     media: {
         height: 200,
     },
   }));
 
-const Watch = ({movies, language}) => {
+const Watch = ({ movies }) => {
     const classes = useStyles();
 
    if(movies){
@@ -47,11 +47,9 @@ const Watch = ({movies, language}) => {
             return singleMovie
        })
         return (
-            <Fragment>
-                <div className={classes.cardDiv} >
-                    {singleMovie}
-                </div>
-            </Fragment>
+            <div className={classes.cardDiv} >
+                {singleMovie}
+            </div>
         )
    }
     else{
