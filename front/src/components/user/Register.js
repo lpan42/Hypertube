@@ -206,9 +206,9 @@ const Register = (props) => {
                     </form>
                     <div className={classes.div}>
                         <Typography variant="subtitle2" color="secondary" component="span">Register with: </Typography>
-                        <Button color="primary" onClick={auth42}><img className={classes.logoImg} src={Logo42}/></Button>
-                        <Button color="primary" onClick={authGoogle}><img className={classes.logoImg} src={LogoGoogle}/></Button>
-                        <Button color="primary" onClick={authGithub}><img className={classes.logoImg} src={LogoGithub}/></Button>
+                        <Button color="primary" onClick={auth42}><img className={classes.logoImg} src={Logo42} alt="42"/></Button>
+                        <Button color="primary" onClick={authGoogle}><img className={classes.logoImg} src={LogoGoogle} alt="Google"/></Button>
+                        <Button color="primary" onClick={authGithub}><img className={classes.logoImg} src={LogoGithub} alt="Github"/></Button>
                     </div>
                     <Typography variant="subtitle2" color="secondary">Have an account? <Link to='Login'>Login</Link></Typography>
                 </CardContent>

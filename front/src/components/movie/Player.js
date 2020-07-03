@@ -13,13 +13,7 @@ import {
     VolumeMenuButton
   } from 'video-react';
 import { makeStyles } from '@material-ui/core/styles';
-import { withStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
-import Spinner from '../layout/Spinner';
-import Divider from '@material-ui/core/Divider';
 import ClickAwayListener from '@material-ui/core/ClickAwayListener';
-import EN from '../../languages/en.json';
-import FR from '../../languages/fr.json';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import Popper from '@material-ui/core/Popper';
@@ -36,11 +30,9 @@ const useStyles = makeStyles(theme => ({
 const MoviePlayer = ({ imdb_id }) => {
     const userContext = useContext(UserContext);
 
-    const { loadUser, user } = userContext;
-    const [lang, setLang] = useState( user && user.data.language ==="english"? EN:FR);
+    const { user } = userContext;
     const [singleMovie, setSingleMovie] = useState("");
     const [error, setError] = useState('');
-    const [success, setSuccess] = useState('');
     const [videoSrc, setVideoSrc] = useState('');
     const [subSrc, setSubSrc] = useState('');
     const [currentSub, setCurrentSub] = useState('');
@@ -165,6 +157,7 @@ const MoviePlayer = ({ imdb_id }) => {
         torrentSelection.push(
             <MenuItem key={key} value={key} onClick={e=>selectTorrent(e)}>{torrent.quality}{torrent.provider}</MenuItem>
         )
+        return torrentSelection;
     })
     
     const player = (

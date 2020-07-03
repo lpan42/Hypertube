@@ -15,6 +15,7 @@ import OAuthValid from './components/user/OAuthValid';
 import Movie from './components/movie/Movie';
 import RequestResetPwd from './components/user/RequestResetPwd';
 import ResetPwd from "./components/user/ResetPwd";
+import NotFound from './components/layout/NotFound';
 import UserState from './contexts/user/UserState';
 
 import { createMuiTheme } from '@material-ui/core/styles';
@@ -37,7 +38,7 @@ toast.configure({
 	  },//red
 	  secondary: {
 		main: '#000000',
-		light:'#808080',
+		light:'#808080',//white
 		contrastText: '#ffffff',
 	  },//black
 	  error: {
@@ -81,6 +82,7 @@ const App = () => {
 							<Route exact path='/login' component={Login} />
 							<Route exact path="/resetpwd_request" component={RequestResetPwd} />
 							<Route exact path="/resetpwd/:resetpwd_link" component={ResetPwd} />
+							<Route component={NotFound} />
 							</Switch>
 						</div>
 						{/* <Footer /> */}

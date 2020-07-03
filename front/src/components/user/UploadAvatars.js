@@ -1,11 +1,9 @@
-import React, {useContext, Fragment, useState} from 'react'
+import React, {useContext, useState} from 'react'
 import UserContext from '../../contexts/user/userContext';
 import { makeStyles } from '@material-ui/core/styles';
 import { toast } from 'react-toastify';
 import Button from '@material-ui/core/Button';
 import Avatar from '@material-ui/core/Avatar';
-import EN from '../../languages/en.json';
-import FR from '../../languages/fr.json';
 
 const useStyles = makeStyles(theme => ({
     editAvatar:{
@@ -44,10 +42,16 @@ const UploadAvatars = ({updateAvatar, lang}) => {
     const types = ['image/png', 'image/jpeg'];
     if (types.every(type => file.type !== type)){
       toast.error("Only png/jpeg(jpg) is allowed");
+      return (false);
+    }
+    if(file.size === 0){
+      toast.error("Empty Image");
+      return (false);
     }
     const size = 3000000;
     if (file.size > size){
       toast.error("File is too big");
+      return (false);
     }
     return (true);
   }
@@ -61,7 +65,7 @@ const UploadAvatars = ({updateAvatar, lang}) => {
 
   return (
       <div className={classes.editAvatar}>
-         <Avatar 
+         <Avatar
             alt={user&&user.data.username}
             src={src} 
             className={classes.largeAvatar}
@@ -73,7 +77,7 @@ const UploadAvatars = ({updateAvatar, lang}) => {
           accept="image/*"
           className={classes.input}
           id="contained-button-file"
-          type="file" name="uploadPic" accept=".jpg,.png" onChange={OnChange}
+          type="file" name="uploadPic" onChange={OnChange}
         />
       </div>
   );

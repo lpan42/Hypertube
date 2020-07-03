@@ -51,9 +51,9 @@ const useStyles = makeStyles(theme => ({
 const MyAccount = () => {
     const userContext = useContext(UserContext);
 
-    const { user, error, success, loadUser, clearSuccess, clearError,loading } = userContext;
+    const { user, error, success, clearSuccess, clearError,loading } = userContext;
     const [edit, setEdit] = useState(false);
-    const [lang, setLang] = useState( user && user.data.language ==="english"? EN:FR);
+    const [lang] = useState( user && user.data.language ==="english"? EN:FR);
     const classes = useStyles();
 
     useEffect(() => {

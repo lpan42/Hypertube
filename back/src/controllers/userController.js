@@ -7,41 +7,50 @@ require("../middleware/passportAuthLocal");
 
 export async function getAccount(req, res) {
     if(req.params.userid === req.userid){
-        const user = await User.findOne({ _id: req.params.userid });
-        if(!user)
+        try{
+            const user = await User.findOne({ _id: req.params.userid })
+            if(!user)
+                return res.status(400).json({ error: "UserId invalid" });   
+            const result = {
+                id: user._id,
+                username: user.username,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                email: user.email,
+                avatar: user.avatar,
+                language: user.language,
+                watched:user.watched,
+                watchLater: user.watchLater,
+            };  
+            return res.status(200).json({
+                data: result
+            });
+        }catch(err){
             return res.status(400).json({ error: "UserId invalid" });   
-        const result = {
-            id: user._id,
-            username: user.username,
-            firstname: user.firstname,
-            lastname: user.lastname,
-            email: user.email,
-            avatar: user.avatar,
-            language: user.language,
-            watched:user.watched,
-            watchLater: user.watchLater,
-        };  
-        return res.status(200).json({
-            data: result
-        });
+        }
     }
     else{
-        const user = await User.findOne({ _id:req.params.userid });
-        if(!user)
+        try{
+            const user = await User.findOne({ _id:req.params.userid });
+            if(!user)
+                return res.status(400).json({ error: "UserId invalid" });   
+            const result = {
+                id: user._id,
+                username: user.username,
+                firstname: user.firstname,
+                lastname: user.lastname,
+                avatar: user.avatar,
+                language: user.language,
+                watched:user.watched,
+                watchLater: user.watchLater,
+            };
+            return res.status(200).json({
+                data: result
+            });
+        }catch(err){
             return res.status(400).json({ error: "UserId invalid" });   
-        const result = {
-            id: user._id,
-            username: user.username,
-            firstname: user.firstname,
-            lastname: user.lastname,
-            avatar: user.avatar,
-            language: user.language,
-            watched:user.watched,
-            watchLater: user.watchLater,
-        };
-        return res.status(200).json({
-            data: result
-        });
+        }
+        
     }
 }
 
@@ -97,23 +106,24 @@ export async function login(req, res) {
 }
 
 export async function authUser(req, res){
-    const user = await User.findOne({ _id: req.userid});
-    if (!user) {
-        return res.status(400).json({ error: "Auth user failed" });
-    }
-    const result = {
-        id: user._id,
-        username: user.username,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        avatar: user.avatar,
-        language: user.language,
-        watched:user.watched,
-        watchLater: user.watchLater,
-    };
-    return res.status(200).json({
-        data: result,
+    await User.findOne({ _id: req.userid},(err,user)=>{
+        if (err || !user) {
+            return res.status(400).json({ error: "Auth user failed" });
+        }
+        const result = {
+            id: user._id,
+            username: user.username,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
+            avatar: user.avatar,
+            language: user.language,
+            watched:user.watched,
+            watchLater: user.watchLater,
+        };
+        return res.status(200).json({
+            data: result,
+        });
     });
 }
 
@@ -126,17 +136,22 @@ export async function logout(req, res) {
 export async function modifyAvatar(req,res){
     const filename = req.userid + crypto.randomBytes(5).toString('hex');
     const file = req.files.file;
-    file.mv(`../front/public/images/${filename}`, err => {
-        if(err){
-            return res.status(500).send(err);
-        }
-    });
-    const result = await User.updateOne({_id:req.userid},{
-        $set:{ avatar: "http://localhost:3000/images/"+filename }
-    })
-    if (result.ok !== 1)
+    if(file){
+        file.mv(`../front/public/images/${filename}`, err => {
+            if(err){
+                return res.status(500).send(err);
+            }
+        });
+        const result = await User.updateOne({_id:req.userid},{
+            $set:{ avatar: "http://localhost:3000/images/"+filename }
+        })
+        if (result.ok !== 1)
+            return res.status(400).json({ error:"Update failed" });
+        return res.status(200);
+    }
+    else{
         return res.status(400).json({ error:"Update failed" });
-    return res.status(200);
+    }
 }
 
 export async function modifyAccount(req,res){
@@ -202,10 +217,9 @@ export async function verifyPwdLink(req,res){
 
 export async function updatepwd(req,res){
     User.findOneAndUpdate({ username:sanitize(req.body.username) }, {$set: {resetPwdLink: null}},(err, user) => {
-        if(err) console.log(err);
         user.setPassword(req.body.password, ()=>{
             user.save().catch(err => {
-                console.error(err);
+                console.log(err);
             })
         })
     });  

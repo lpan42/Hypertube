@@ -431,7 +431,6 @@ export function streamMovie(req,res){
 }
 
 export async function addToWatched(req,res){
-    // console.log("call")
    await User.findOne({ _id: req.userid }, { watched:{ $elemMatch:{ ImdbID: req.params.imdb_id }}},
         async (err, watched) => {
         if (err) console.log(err);

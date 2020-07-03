@@ -44,6 +44,7 @@ const Watch = ({movies, language}) => {
                     </CardContent>
                 </Card>
             )
+            return singleMovie
        })
         return (
             <Fragment>

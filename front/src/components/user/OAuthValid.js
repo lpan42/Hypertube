@@ -1,12 +1,11 @@
 import React,{ useContext, useEffect }  from 'react';
 import UserContext from '../../contexts/user/userContext';
 import { useHistory } from "react-router-dom";
-import { toast } from 'react-toastify';
 
 const OAuthValid = ({match}) => {
     const userContext = useContext(UserContext);
     const history = useHistory();
-    const {user, loadUser, setToken, token, error, clearError} = userContext;
+    const {user, loadUser, setToken, token, error} = userContext;
 
     useEffect(() => {
         let newToken = match.params.token;

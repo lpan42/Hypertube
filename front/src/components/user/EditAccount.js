@@ -12,7 +12,6 @@ import MenuItem from '@material-ui/core/MenuItem';
 import toUpperCase from '../../utils/toUpperCase';
 import LanguageIcon from '@material-ui/icons/Language';
 import UploadAvatar from './UploadAvatars';
-import { toast } from 'react-toastify';
 import EN from '../../languages/en.json';
 import FR from '../../languages/fr.json';
 
@@ -39,10 +38,10 @@ const useStyles = makeStyles(theme => ({
   
 const EditAccount = () => {
     const userContext = useContext(UserContext);
-    const { user, editAccount,uploadAvatar, error, success, clearError,clearSuccess} = userContext;
+    const { user, editAccount,uploadAvatar} = userContext;
     const classes = useStyles();
     const [language, setLanguage] = useState(user.data.language);
-    const [lang, setLang] = useState( user && user.data.language ==="english"? EN:FR);
+    const [lang] = useState( user && user.data.language ==="english"? EN:FR);
     const [avatar, setAvatar] = useState(null);
 
     useEffect(() => {

@@ -7,8 +7,6 @@ import IconButton from '@material-ui/core/IconButton';
 import axios from 'axios';
 import setAuthToken from '../../utils/setAuthToken';
 import List from '@material-ui/core/List';
-import ListItem from '@material-ui/core/ListItem';
-import ListItemText from '@material-ui/core/ListItemText';
 import moment from 'moment';
 
 const useStyles = makeStyles(theme => ({
@@ -85,6 +83,7 @@ const Comments = ({language, imdbId}) => {
                 <Typography variant="body2">{comment.comment}</Typography>
             </List>
         )
+        return showComment;
     })
 
     return (

@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import axios from 'axios';
 import Spinner from '../layout/Spinner';
 import setAuthToken from '../../utils/setAuthToken';
+import { Typography } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -25,7 +26,7 @@ const useStyles = makeStyles(theme => ({
 const Account = ({match}) => {
   const userContext = useContext(UserContext);
   const classes = useStyles();
-  const {user, loadUser, token} = userContext;
+  const {user, loadUser} = userContext;
 
   const [accountInfo, setAccountInfo] = useState('');
   const [loading, setLoading] = useState(true);
@@ -47,15 +48,19 @@ const Account = ({match}) => {
       getAccount(match.params.userid);
       //eslint-disable-next-line
   },[]);
-  
+
   if (loading) return <Spinner />;
 
+  const renderAccount = () => {
+   return (
+      match.params.userid === (user && user.data.id) ? 
+        <MyAccount /> : 
+        <VisitAccount accountInfo={accountInfo} />
+    )
+  }
   return (
       <div className={classes.container}>
-        {match.params.userid === (user && user.data.id) ? 
-          <MyAccount /> : 
-          <VisitAccount accountInfo={accountInfo} />
-        }
+        { error ? <Typography variant="h6" color="primary">{error}</Typography> : renderAccount() }
       </div>
   )
 }

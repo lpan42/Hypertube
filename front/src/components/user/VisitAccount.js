@@ -1,10 +1,8 @@
-import React,{ useState, useContext, useEffect, Fragment }  from 'react';
+import React,{ useState, useContext}  from 'react';
 import UserContext from '../../contexts/user/userContext';
-import { toast } from 'react-toastify';
 import toUpperCase from '../../utils/toUpperCase';
 import { makeStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
-import Button from '@material-ui/core/Button';
 import { fade } from '@material-ui/core/styles/colorManipulator';
 import Avatar from '@material-ui/core/Avatar';
 import EN from '../../languages/en.json';
@@ -48,7 +46,7 @@ const VisitAccount = ({accountInfo}) => {
     const userContext = useContext(UserContext);
     const classes = useStyles();
     const { user } = userContext;
-    const [lang, setLang] = useState( user && user.data.language ==="english"? EN:FR);
+    const [lang] = useState( user && user.data.language ==="english"? EN:FR);
     
     return (
         <div className={classes.card}>

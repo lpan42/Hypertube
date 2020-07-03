@@ -166,7 +166,7 @@ const Movie = ({ match }) => {
         <Fragment>
             <MoviePlayer imdb_id={match.params.imdb_id}/>
             <div className={classes.movieInfo}>
-                <img className={classes.poster} src={movieInfo.Poster} />
+                <img className={classes.poster} src={movieInfo.Poster} alt={movieInfo.Title}/>
                 <div className={classes.movieContent}>
                     <div style={{display:"flex",justifyContent:"space-between"}}>
                         <Typography variant="h4" component="p" color="primary">{movieInfo.Title} ({movieInfo.Year})</Typography>

@@ -11,7 +11,7 @@ export async function addComment(req, res){
     });
     newComment.save(err => {
         if (err){
-            console.error(err);
+            console.log(err);
             return res.status(400);
         }
         return res.status(200);

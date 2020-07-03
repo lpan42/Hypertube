@@ -133,9 +133,9 @@ const Login = (props) => {
                     </form>
                     <div className={classes.div}>
                         <Typography variant="subtitle2" color="secondary" component="span">Login with: </Typography>
-                        <Button color="primary" onClick={auth42}><img className={classes.logoImg} src={Logo42}/></Button>
-                        <Button color="primary" onClick={authGoogle}><img className={classes.logoImg} src={LogoGoogle}/></Button>
-                        <Button color="primary" onClick={authGithub}><img className={classes.logoImg} src={LogoGithub}/></Button>
+                        <Button color="primary" onClick={auth42}><img className={classes.logoImg} src={Logo42} alt="42"/></Button>
+                        <Button color="primary" onClick={authGoogle}><img className={classes.logoImg} src={LogoGoogle} alt="Google"/></Button>
+                        <Button color="primary" onClick={authGithub}><img className={classes.logoImg} src={LogoGithub} alt ="Github"/></Button>
                     </div>
                     <Typography variant="subtitle2" color="secondary">Don't have an account? <Link to='Register'>Register</Link></Typography>
                     <Typography variant="subtitle2" color="secondary">Forget you password? <Link to='resetpwd_request'>Reset My Password</Link></Typography>
