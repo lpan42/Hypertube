@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 //components
 import Header from "./components/layout/Header";
-// import Footer from "./components/layout/Footer";
+import Footer from "./components/layout/Footer";
 import Index from './components/index/Index';
 import Register from './components/user/Register';
 import Login from './components/user/Login';
@@ -85,7 +85,7 @@ const App = () => {
 							<Route component={NotFound} />
 							</Switch>
 						</div>
-						{/* <Footer /> */}
+						<Footer />
 					</Fragment>
 				</ThemeProvider>
 			</Router>
