@@ -525,11 +525,6 @@ export async function searchMovie(req, res){
     }, (err, result) =>{
         if (err) { 
             return (res.status(500).json({error: "Fail to fetch Database"}))
-        // }
-        // if (result && result.length === 30){
-        //     return(res.status(200).json({ data: result }))
-        // }else if(result && result.length < 30 && result.length > 0){
-        //     return(res.status(200).json({ data: result }));
         }else{
             return (res.status(200).json({data: result}));
         }
@@ -540,7 +535,7 @@ export async function fetchPageNum(req, res){
 
     const genre = req.body.genre.length === 0 ? null : req.body.genre;
     const keyword = req.body.keyword.length === 0 ? null : new RegExp(req.body.keyword, 'i');
-    const result = await Movie.count({ $and: [
+    const result = await Movie.countDocuments({ $and: [
         CreateMongoQuery('Title', keyword),
         CreateMongoQuery('Genre', genre),
         {'Year' : { $gt: Number(req.body.yearrange[0]), $lt: Number(req.body.yearrange[1])}},
