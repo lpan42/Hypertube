@@ -1,8 +1,7 @@
-import React, { Fragment, useContext, useEffect, useState , useMemo, useRef} from 'react'
+import React, { Fragment, useContext, useEffect, useState , useMemo} from 'react'
 import axios from 'axios';
 import Spinner from '../layout/Spinner';
 /******************** utils ********************/
-import {moviedbAPI_KEY} from '../moviedbAPI_KEY';
 import TrimInputStr from '../../utils/TrimInputStr'
 /******************** style ********************/
 import Typography from '@material-ui/core/Typography';
@@ -13,14 +12,12 @@ import BookmarkIcon from '@material-ui/icons/Bookmark';
 import Button from '@material-ui/core/Button';
 
 /******************** package ********************/
-import { toast } from 'react-toastify';
 
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
-import MenuItem from '@material-ui/core/MenuItem';
 
-import fr from '../../languages/fr.json';
-import en from '../../languages/en.json';
+import french from '../../languages/fr.json';
+import english from '../../languages/en.json';
 
 import MovieContext from '../../contexts/movie/movieContext';
 import UserState from '../../contexts/user/UserState';
@@ -37,7 +34,7 @@ const Search = () => {
     const userContext = useContext(UserContext);
     const { movies, loading, searchByKeyword, nbpages } = movieContext;
     const { loadUser, user } = userContext;
-    const [language, setLanguage] = useState(en);
+    const [language, setLanguage] = useState(english);
 
     const [searchInput, setSearchInput] = useState('');
     const [addwatchLater, setAddWatchLater] = useState('');
@@ -49,9 +46,7 @@ const Search = () => {
 
     const [search, setSearch] = useState(false);
 
-    const [success, setSuccess] = useState('');
     const [isFetching, setIsFetching] = useState(true);
-    const [error, setError] = useState(false);
 
     const [page, setPage] = useState(1);
     
@@ -66,6 +61,13 @@ const Search = () => {
     };
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
+
+    useEffect(() => {
+        if (user){
+            const lang = user.data.language;
+            setLanguage( user && user.data.language === "english" ? english:french)
+        }
+    }, [user])
 
     useEffect(() => {
         if (user){
@@ -138,9 +140,6 @@ const Search = () => {
                     <div className="hidden content center aligned">
                         <Typography variant="subtitle2">
                             <span style={{fontSize: 16}}>
-                            {inList(watchLaterList, movie.ImdbId) ? 
-                                <BookmarkIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer', color: 'red'}} onClick={() => setRemoveWatchLater(movie.ImdbId)}/>
-                                : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => setAddWatchLater(movie.ImdbId)}/>}
                             {movie.Plot}
                             <br/><br/>
                             </span>
@@ -154,7 +153,9 @@ const Search = () => {
                         </div>
                     </div>
                     <div className="extra">
-                        <Typography variant="subtitle1"><StarIcon style={{ color: '#fdd835', margin: '0 10 0 0'}}/>{movie.ImdbRating}</Typography>
+                        <Typography variant="subtitle1"><StarIcon style={{ color: '#fdd835', margin: '0 10 0 0'}}/>{movie.ImdbRating}{inList(watchLaterList, movie.ImdbId) ? 
+                                <BookmarkIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer', color: 'red'}} onClick={() => setRemoveWatchLater(movie.ImdbId)}/>
+                                : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => setAddWatchLater(movie.ImdbId)}/>}</Typography>
                     </div>
                 </div>
             ))

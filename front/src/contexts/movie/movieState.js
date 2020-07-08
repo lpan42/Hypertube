@@ -3,7 +3,6 @@ import axios from 'axios';
 import MovieContext from './movieContext';
 import MovieReducer from './movieReducer';
 import setAuthToken from '../../utils/setAuthToken';
-import { moviedbAPI_KEY } from '../../components/moviedbAPI_KEY';
 import {    
     FETCH_MOVIES,
     FETCH_ERROR,
