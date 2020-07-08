@@ -142,8 +142,6 @@ export async function getMovieinfo(req, res){
         //         "ImdbID" : omdi.data.imdbID,
         //     }
         // }
-        // console.log(omdi.data)
-        // console.log(themoviedb.data)
         return res.status(200).json({ data: result });
     }catch(err){
         let result = {};
@@ -221,10 +219,9 @@ export async function removeWatchLater(req, res){
 }
 
 export async function getSingleMovie(req,res){
-    // console.log(req.userid, req.params.imdb_id)
     await Movie.findOne({ ImdbId:req.params.imdb_id }, (err, result) => {
         if(err || result === null){
-            return res.status(400).json({ error:"No movie resource found" })
+            return res.status(400).json({ error:"No available movie resource found" })
         }
         return res.status(200).json({ data: result });
     })
@@ -284,11 +281,10 @@ export function downloadTorrent(req,res,torrent){
         engine.files.forEach(function(file) {
             const ext = path.extname(file.path);
             if(ext === '.mp4' || ext === '.avi' || ext === '.mkv' || ext === '.ogg'){
-console.log(ext)
+// console.log(ext)
                 file.select();
                 fileSize = file.length;
-                filePath = rootPath + '/movies/' + file.path;
-console.log(filePath);
+                filePath = '/movies/' + file.path;
                 let contentType;
                     if(ext === '.mp4')
                         contentType = 'video/mp4';
@@ -342,15 +338,28 @@ console.log(filePath);
         console.log("Downloding: " + Math.round(engine.swarm.downloaded / fileSize * 100) + "%");
     })
     engine.on('idle', () => {
-        const newDowloaded =  new Downloaded({  
+        //check if exists
+        Downloaded.findOne({ 
             ImdbId: req.params.imdb_id,
             Quality: req.params.quality,
             Provider: req.params.provider,
             FilePath: filePath 
-        })
-        newDowloaded.save((err) => {
-            if(err)
+        },(err,res) => {
+            if(err){
                 console.log(err)
+            }
+            if(res === null){
+                const newDowloaded =  new Downloaded({  
+                    ImdbId: req.params.imdb_id,
+                    Quality: req.params.quality,
+                    Provider: req.params.provider,
+                    FilePath: filePath 
+                })
+                newDowloaded.save((err) => {
+                    if(err)
+                        console.log(err)
+                })
+            }
         })
         console.log("Download Finish");
     })
@@ -365,23 +374,11 @@ export function streamMovie(req,res){
                 return res.status(400).json({ error:"No movie resource found" })
             }
             else{
-                //add to watched
-                // User.findOne({ _id: req.userid }, { watched:{ $elemMatch:{ ImdbId: req.params.imdb_id }}},
-                //     (err, watched) => {
-                //     if (err) console.log(err);
-                //     if(!watched.watched.length){
-                //         User.updateOne({ _id:req.userid },{ $addToSet : { watched : {"ImdbID" : req.params.imdb_id} }},(err) => {
-                //             if(err) return res.status(400).json({ error:"file to add to watched" });
-                //         });
-                //     }
-                //   });
-
                 //check if downloaded
                 Downloaded.findOne({ ImdbId:req.params.imdb_id, Quality: req.params.quality, Provider: req.params.provider },
                     (err, downloaded) => {
                     if (err) console.log(err);
                     if(downloaded === null){
-                        console.log(torrent.Torrents[0])
                         downloadTorrent(req,res, torrent.Torrents[0]);
                     }
                     else{
@@ -482,9 +479,9 @@ export async function addToWatched(req,res){
         }else{
             return res.status(200);
         }
-    });
+      });
+    return res.status(200);
 }
-
 function CreateMongoQuery(queryProp,value){
     if (value === '' || value === null){
         return (null);
@@ -525,11 +522,6 @@ export async function searchMovie(req, res){
     }, (err, result) =>{
         if (err) { 
             return (res.status(500).json({error: "Fail to fetch Database"}))
-        // }
-        // if (result && result.length === 30){
-        //     return(res.status(200).json({ data: result }))
-        // }else if(result && result.length < 30 && result.length > 0){
-        //     return(res.status(200).json({ data: result }));
         }else{
             return (res.status(200).json({data: result}));
         }
@@ -540,7 +532,7 @@ export async function fetchPageNum(req, res){
 
     const genre = req.body.genre.length === 0 ? null : req.body.genre;
     const keyword = req.body.keyword.length === 0 ? null : new RegExp(req.body.keyword, 'i');
-    const result = await Movie.count({ $and: [
+    const result = await Movie.countDocuments({ $and: [
         CreateMongoQuery('Title', keyword),
         CreateMongoQuery('Genre', genre),
         {'Year' : { $gt: Number(req.body.yearrange[0]), $lt: Number(req.body.yearrange[1])}},
