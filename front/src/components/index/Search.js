@@ -29,15 +29,13 @@ import UserContext from '../../contexts/user/userContext';
 import Popover from '@material-ui/core/Popover';
 import Slider from '@material-ui/core/Slider';
 
-import FirstPageIcon from '@material-ui/icons/FirstPage';
 import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
 import NavigateNextIcon from '@material-ui/icons/NavigateNext';
-import LastPageIcon from '@material-ui/icons/LastPage';
 
 const Search = () => {
     const movieContext = useContext(MovieContext);
     const userContext = useContext(UserContext);
-    const { movies, loading, searchByKeyword } = movieContext;
+    const { movies, loading, searchByKeyword, nbpages } = movieContext;
     const { loadUser, user } = userContext;
     const [language, setLanguage] = useState(en);
 
@@ -96,11 +94,6 @@ const Search = () => {
         setSearch(false);
     }, [search, page])
 
-    // useEffect(() => {
-    //     setPage(1);
-    //     setSearch(true);
-    // }, [searchInput, genre, yearrange, ratingrange, sortBy])
-
     const addWatchLaterList = async() => {
         await axios.post(`/movie/watchlater/add/${addwatchLater}`);
         setAddWatchLater('');
@@ -125,7 +118,7 @@ const Search = () => {
         }
     }, [removewatchLater])
 
-    const inWatchLaterList = (List, movie) => {
+    const inList = (List, movie) => {
         if ( List ){
             for (let i = 0; i < List.length; i++){
                 if (List[i].ImdbID === movie){
@@ -137,25 +130,25 @@ const Search = () => {
     }
 
     const filmList = useMemo(() => {
-        if (movies.length !== 0){
+        if (movies.length !== 0 && user){
             return movies.data.map((movie, key) => (
                 <div className="card" key={key}>
                     <div className="ui slide masked reveal image" style={{backgroundColor: 'black'}}>
                         <img src={movie.Poster} className="visible content" onError={(e)=>{e.target.onerror = null; e.target.src='/images/No_Picture.jpg'}}/> 
-                        <div className="hidden content center aligned">
-                            <Typography variant="subtitle2">
-                                <span style={{fontSize: 16}}>
-                                {inWatchLaterList(watchLaterList, movie.ImdbId) ? 
-                                    <BookmarkIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer', color: 'red'}} onClick={() => setRemoveWatchLater(movie.ImdbId)}/>
-                                    : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => setAddWatchLater(movie.ImdbId)}/>}
-                                {movie.Plot}
-                                <br/><br/>
-                                </span>
-                            </Typography>
-                        </div>
+                    <div className="hidden content center aligned">
+                        <Typography variant="subtitle2">
+                            <span style={{fontSize: 16}}>
+                            {inList(watchLaterList, movie.ImdbId) ? 
+                                <BookmarkIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer', color: 'red'}} onClick={() => setRemoveWatchLater(movie.ImdbId)}/>
+                                : <BookmarkBorderIcon style={{margin: '20 20 0 0', float: 'right', cursor: 'pointer'}} onClick={() => setAddWatchLater(movie.ImdbId)}/>}
+                            {movie.Plot}
+                            <br/><br/>
+                            </span>
+                        </Typography>
+                    </div>
                     </div>
                     <div className="content">
-                        <a className="ui medium header" href={"/movie/" + movie.ImdbId}>{movie.Title}</a>
+                        <a className="ui medium header" href={"/movie/" + movie.ImdbId}>{movie.Title}{inList(user.data.watched, movie.ImdbId) ? <img style={{width: '15px',float: 'right'}} alt="watched" src="http://localhost:3000/images/watched.png" /> : null}</a>
                         <div className="meta">
                             <Typography variant="subtitle1"><TodayIcon/><span className="date">{movie.Year}</span></Typography>
                         </div>
@@ -171,13 +164,13 @@ const Search = () => {
     const checkPage = (page) => {
         if (page - 1 < 1){
             return (1);
-            //alert ?: first page already
-        // }else if (page + 1 > (17750 / 30)){
+        }else if (page > nbpages){
+            return (nbpages)
         }else{
             return (page)
         }
     }
-    console.log(movies)
+
     return (
         <Fragment>
             <div className="ui search">
@@ -188,10 +181,10 @@ const Search = () => {
             <Button aria-describedby={id} variant="contained" style={{float: 'right'}} onClick={popoverhandleClick}>
                 {language.filter.filter}
             </Button>
-            <FirstPageIcon style={{margin: '2em 0.5em', cursor: 'pointer'}} onClick={() => {setPage(1)}}/>
+            
             <NavigateBeforeIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}onClick={() => setPage(checkPage(page - 1))}/>
             <NavigateNextIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}onClick={() => setPage(checkPage(page + 1))}/>
-            <LastPageIcon style={{margin: '2em 0.5em', cursor: 'pointer' }}/>
+            
             <Popover id={id} open={open} anchorEl={anchorEl} onClose={popoverhandleClose} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} transformOrigin={{vertical: 'top', horizontal: 'center'}}>
                 <div style={{width: 200, padding: '1.5em'}}>
                 <Typography variant="body2">{language.filter.year} {yearrange[0]} - {yearrange[1]}</Typography>

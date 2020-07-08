@@ -1,6 +1,7 @@
 import {
     FETCH_MOVIES,
-    FETCH_ERROR
+    FETCH_ERROR,
+    FETCH_NBPAGE
 } from '../types';
 
 export default (state, action) => {
@@ -16,6 +17,11 @@ export default (state, action) => {
                 ...state,
                 loading: false
             }
+            case FETCH_NBPAGE:
+                return {
+                    ...state,
+                    nbpages: action.payload,
+                }
         default: {
             return state;
         }

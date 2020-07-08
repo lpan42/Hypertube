@@ -6,7 +6,8 @@ import setAuthToken from '../../utils/setAuthToken';
 import { moviedbAPI_KEY } from '../../components/moviedbAPI_KEY';
 import {    
     FETCH_MOVIES,
-    FETCH_ERROR
+    FETCH_ERROR,
+    FETCH_NBPAGE
 } from '../types';
 
 
@@ -14,6 +15,7 @@ const MovieState = props => {
     const initialState = {
         loading: true,
         movies: [],
+        nbpages: null
     }
 
     const [state, dispatch] = useReducer(MovieReducer, initialState);
@@ -37,6 +39,11 @@ const MovieState = props => {
                 type: FETCH_MOVIES,
                 payload: result.data
             })
+            const result_page_nb = await axios.post('/movie/fetchpagenum', data, config);
+            dispatch({
+                type: FETCH_NBPAGE,
+                payload: result_page_nb.data.data
+            })
         } catch (err) {
             dispatch({
                 type: FETCH_ERROR, 
@@ -51,7 +58,7 @@ const MovieState = props => {
             value={{
                 movies: state.movies,
                 loading: state.loading,
-                pages: state.pages,
+                nbpages: Math.ceil(state.nbpages / 30),
                 searchByKeyword,
             }}
         >

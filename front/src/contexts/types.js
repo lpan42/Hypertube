@@ -15,3 +15,4 @@ export const SET_TOKEN = 'SET_TOKEN';
 //film
 export const FETCH_MOVIES = 'FETCH_MOVIES';
 export const FETCH_ERROR = 'FETCH_ERROR';
+export const FETCH_NBPAGE = 'FETCH_NBPAGE';

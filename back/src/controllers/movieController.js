@@ -381,6 +381,7 @@ export function streamMovie(req,res){
                     (err, downloaded) => {
                     if (err) console.log(err);
                     if(downloaded === null){
+                        console.log(torrent.Torrents[0])
                         downloadTorrent(req,res, torrent.Torrents[0]);
                     }
                     else{
@@ -491,21 +492,23 @@ function CreateMongoQuery(queryProp,value){
     return ({[queryProp]: value});
 }
 
-function SortBy(keyword, criteria){
-    // if (keyword !== null){
-    //     return ({Title: 1})
-    // }else{
-        return({[criteria]: -1})
-    // }
+function setSort(sortBy){
+    if (sortBy === 'DateDsc'){
+        return (-1);
+    }else if (sortBy === 'DateAsc'){
+        return (1);
+    }else if (sortBy === 'ImdbRating'){
+        return (-1);
+    }
 }
 
 function setCriteria(sortBy){
     if (sortBy === "Title"){
-        return ("Title");
+        return ({['Title']: setSort(sortBy)});
     }else if (sortBy === 'ImdbRating'){
-        return ('ImdbRating')
-    }else if (sortBy === 'DateDes' || sortBy === 'DateAsc'){
-        return ("Year")
+        return ({['ImdbRating']: setSort(sortBy)})
+    }else if (sortBy === 'DateDsc' || sortBy === 'DateAsc'){
+        return ({['Year']: setSort(sortBy)})
     }
 }
 
@@ -513,7 +516,6 @@ export async function searchMovie(req, res){
     const genre = req.body.genre.length === 0 ? null : req.body.genre;
     const keyword = req.body.keyword.length === 0 ? null : new RegExp(req.body.keyword, 'i');
     const criteria = setCriteria(req.body.sortBy);
-    console.log(req.body.sortBy)
     const result = await Movie.find({ $and: [
         CreateMongoQuery('Title', keyword),
         CreateMongoQuery('Genre', genre),
@@ -523,13 +525,32 @@ export async function searchMovie(req, res){
     }, (err, result) =>{
         if (err) { 
             return (res.status(500).json({error: "Fail to fetch Database"}))
-        }
-        if (result && result.length === 30){
-            return(res.status(200).json({ data: result }))
-        }else if(result && result.length < 30 && result.length > 0){
-            return(res.status(200).json({ data: result }));
+        // }
+        // if (result && result.length === 30){
+        //     return(res.status(200).json({ data: result }))
+        // }else if(result && result.length < 30 && result.length > 0){
+        //     return(res.status(200).json({ data: result }));
         }else{
             return (res.status(200).json({data: result}));
         }
-    }).sort(SortBy(keyword, criteria)).skip((req.body.page - 1) * 30).limit(30);
+    }).sort(criteria).skip((req.body.page - 1) * 30).limit(30);
+}
+
+export async function fetchPageNum(req, res){
+
+    const genre = req.body.genre.length === 0 ? null : req.body.genre;
+    const keyword = req.body.keyword.length === 0 ? null : new RegExp(req.body.keyword, 'i');
+    const result = await Movie.count({ $and: [
+        CreateMongoQuery('Title', keyword),
+        CreateMongoQuery('Genre', genre),
+        {'Year' : { $gt: Number(req.body.yearrange[0]), $lt: Number(req.body.yearrange[1])}},
+        {'ImdbRating' : { $gt: Number(req.body.ratingrange[0]), $lt: Number(req.body.ratingrange[1])}}
+    ].filter(q => q !== null),    
+    }, (err, result) =>{
+        if (err) { 
+            return (res.status(500).json({error: "Fail to fetch Database"}))
+        }else{
+            return (res.status(200).json({data: result}));
+        }
+    });
 }
