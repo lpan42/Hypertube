@@ -1,11 +1,15 @@
 import React, { useContext, useEffect } from 'react'
 import UserContext from '../../contexts/user/userContext';
-import setAuthToken from '../../utils/setAuthToken';
-import { useHistory } from "react-router-dom";
 import Search from './Search';
+import axios from '../../../../back/node_modules/axios';
+import MovieContext from '../../contexts/movie/movieContext';
+import moviedbAPI_KEY from '../../utils/moviedbAPI_KEY'
 
 const Index = () => {
     const userContext = useContext(UserContext);
+    const movieContext = useContext(MovieContext);
+
+    const { searchPopularMovie } = movieContext;
 
     const {loadUser} = userContext;
     
@@ -13,18 +17,21 @@ const Index = () => {
         loadUser();
         //eslint-disable-next-line
     }, []);
-    // useEffect(() => {
-    //     loadUser();
-    //     if(!token && !user){
-    //        history.push('/register');
-    //     }
-    //     //eslint-disable-next-line
-    //   }, []);
+
+    useEffect(() => {
+        const fetchPopular = async() => {
+            const popularMovies = await axios.get('https://api.themoviedb.org/3/movie/popular?api_key=' + moviedbAPI_KEY);
+            popularMovies.data.results.forEach(movie => {
+                searchPopularMovie(movie.title)
+            });
+        }
+
+        fetchPopular()
+    }, [])
 
     return (
         <div className="container">
             <Search/>
-            index
         </div>
     )
 }

@@ -546,3 +546,12 @@ export async function fetchPageNum(req, res){
         }
     });
 }
+
+export async function fetchPopular(req, res){
+    const result = Movie.findOne({Title: req.body.title}, (err, result) => {
+        if(err || result === null){
+            return res.status(400).json({ error:"No available movie resource found" })
+        }
+        return (res.status(200).json({data: result}));
+    })
+}
