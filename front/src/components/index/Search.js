@@ -23,13 +23,12 @@ import UserContext from '../../contexts/user/userContext';
 import Popover from '@material-ui/core/Popover';
 import Slider from '@material-ui/core/Slider';
 
-import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
-import NavigateNextIcon from '@material-ui/icons/NavigateNext';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 
 const Search = () => {
     const movieContext = useContext(MovieContext);
     const userContext = useContext(UserContext);
-    const { movies, searchByKeyword, nbpages, loading } = movieContext;
+    const { movies, searchByKeyword, nbpages, loading, fetchpop } = movieContext;
     const { loadUser, user } = userContext;
     const [language, setLanguage] = useState(english);
 
@@ -46,6 +45,7 @@ const Search = () => {
     const [isFetching, setIsFetching] = useState(true);
 
     const [page, setPage] = useState(1);
+    const [suggPop, setSggPop] = useState(true);
     
     const [watchLaterList, setwatchLaterList] = useState([])
 
@@ -81,11 +81,11 @@ const Search = () => {
 
     useEffect(() => {
         setPage(1)
-
     }, [search])
 
     useEffect(() => {
-        if (search === true){
+        if (fetchpop === false){
+            setSggPop(false);
             setIsFetching(true);
             searchByKeyword(TrimInputStr(searchInput), genre, yearrange, ratingrange, page, sortBy);
             setIsFetching(false);
@@ -160,8 +160,8 @@ const Search = () => {
     }, [movies, watchLaterList, user])
 
     const checkPage = (page) => {
-        if (page - 1 < 1){
-            return (1);
+        if (page > 300){
+            return (300);
         }else if (page > nbpages){
             return (nbpages)
         }else{
@@ -179,9 +179,6 @@ const Search = () => {
             <Button aria-describedby={id} variant="contained" style={{float: 'right'}} onClick={popoverhandleClick}>
                 {language.filter.filter}
             </Button>
-            
-            <NavigateBeforeIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}onClick={() => setPage(checkPage(page - 1))}/>
-            <NavigateNextIcon style={{margin: '2em 0.5em', cursor: 'pointer'}}onClick={() => setPage(checkPage(page + 1))}/>
             
             <Popover id={id} open={open} anchorEl={anchorEl} onClose={popoverhandleClose} anchorOrigin={{vertical: 'bottom', horizontal: 'center'}} transformOrigin={{vertical: 'top', horizontal: 'center'}}>
                 <div style={{width: 200, padding: '1.5em'}}>
@@ -209,6 +206,7 @@ const Search = () => {
                         <Button value="Musical">{language.movietype.Musical}</Button>
                         <Button value="Mystery">{language.movietype.Mystery}</Button>
                         <Button value="Romance">{language.movietype.Romance}</Button>
+                        <Button value="Sci-Fi">{language.movietype.SciFi}</Button>
                         <Button value="Sport">{language.movietype.Sport}</Button>
                         <Button value="Thriller">{language.movietype.Thriller}</Button>
                         <Button value="War">{language.movietype.War}</Button>
@@ -231,11 +229,17 @@ const Search = () => {
             </Popover>
             <div className="ui divider" style={{margin: '0em 0em 3em 0em'}}></div>
             <div className="ui centered grid">
-            {loading ? <Spinner/> :
+
+            {loading === true ? <Spinner/> :
                 <div className='ui doubling stackable cards'>
                     {filmList}
                 </div>
             }
+            {suggPop ? null :
+            <div>
+            <ArrowDownwardIcon style={{margin: '2em'}} onClick={() => setPage(checkPage(page + 1))}/>
+            </div>}
+
             </div>
         </Fragment>
     )

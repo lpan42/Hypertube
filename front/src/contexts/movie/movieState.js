@@ -15,7 +15,8 @@ const MovieState = props => {
     const initialState = {
         loading: true,
         movies: [],
-        nbpages: null
+        nbpages: null,
+        fetchpop: true
     }
 
     const [state, dispatch] = useReducer(MovieReducer, initialState);
@@ -82,7 +83,8 @@ const MovieState = props => {
                 loading: state.loading,
                 nbpages: Math.ceil(state.nbpages / 30),
                 searchByKeyword,
-                searchPopularMovie
+                searchPopularMovie,
+                fetchpop: state.fetchpop
             }}
         >
         {props.children}

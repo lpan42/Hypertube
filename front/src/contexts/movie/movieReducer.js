@@ -27,7 +27,8 @@ export default (state, action) => {
                 return {
                     ...state,
                     movies: state.movies.concat(action.payload),
-                    loading: false
+                    loading: false,
+                    fetchpop: false
                 }
         default: {
             return state;

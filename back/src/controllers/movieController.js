@@ -525,7 +525,7 @@ export async function searchMovie(req, res){
         }else{
             return (res.status(200).json({data: result}));
         }
-    }).sort(criteria).skip((req.body.page - 1) * 30).limit(30);
+    }).sort(criteria).limit(30 * req.body.page);
 }
 
 export async function fetchPageNum(req, res){

@@ -9,7 +9,7 @@ const Index = () => {
     const userContext = useContext(UserContext);
     const movieContext = useContext(MovieContext);
 
-    const { searchPopularMovie } = movieContext;
+    const { searchPopularMovie, fetchpop } = movieContext;
 
     const {loadUser} = userContext;
     
@@ -21,12 +21,15 @@ const Index = () => {
     useEffect(() => {
         const fetchPopular = async() => {
             const popularMovies = await axios.get('https://api.themoviedb.org/3/movie/popular?api_key=' + moviedbAPI_KEY);
+            console.log(popularMovies)
             popularMovies.data.results.forEach(movie => {
                 searchPopularMovie(movie.title)
             });
         }
 
-        fetchPopular()
+        if (fetchpop === true){
+            fetchPopular()
+        }
     }, [])
 
     return (
