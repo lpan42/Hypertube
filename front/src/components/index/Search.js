@@ -235,7 +235,7 @@ const Search = () => {
                     {filmList}
                 </div>
             }
-            {suggPop ? null :
+            {suggPop || checkPage(page) === nbpages ? null :
             <div>
             <ArrowDownwardIcon style={{margin: '2em'}} onClick={() => setPage(checkPage(page + 1))}/>
             </div>}
