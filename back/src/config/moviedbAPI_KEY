@@ -1,3 +1,0 @@
-const moviedbAPI_KEY = { API_KEY: "84a478cbc28857a10ea66f63b40ecd28" }
-
-module.exports = moviedbAPI_KEY;
