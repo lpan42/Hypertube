@@ -42,8 +42,6 @@ const Search = () => {
 
     const [search, setSearch] = useState(false);
 
-    const [isFetching, setIsFetching] = useState(true);
-
     const [page, setPage] = useState(1);
     const [suggPop, setSggPop] = useState(true);
     
@@ -86,35 +84,34 @@ const Search = () => {
     useEffect(() => {
         if (fetchpop === false){
             setSggPop(false);
-            setIsFetching(true);
             searchByKeyword(TrimInputStr(searchInput), genre, yearrange, ratingrange, page, sortBy);
-            setIsFetching(false);
             setSearch(false);
         }
+        // eslint-disable-next-line
     }, [search, page])
 
-    const addWatchLaterList = async() => {
-        await axios.post(`/movie/watchlater/add/${addwatchLater}`);
-        setAddWatchLater('');
-        loadUser()
-    }
-
     useEffect(() => {
+        const addWatchLaterList = async() => {
+            await axios.post(`/movie/watchlater/add/${addwatchLater}`);
+            setAddWatchLater('');
+            loadUser()
+        }
         if (addwatchLater !== '' ){
             addWatchLaterList();
         }
+        // eslint-disable-next-line
     }, [addwatchLater])
 
-    const removeWatchLaterList = async() => {
-        await axios.post(`/movie/watchlater/remove/${removewatchLater}`);
-        setRemoveWatchLater('');
-        loadUser()
-    }
-
     useEffect(()=> {
+        const removeWatchLaterList = async() => {
+            await axios.post(`/movie/watchlater/remove/${removewatchLater}`);
+            setRemoveWatchLater('');
+            loadUser()
+        }
         if (removewatchLater !== ''){
             removeWatchLaterList();
         }
+        // eslint-disable-next-line
     }, [removewatchLater])
 
     const inList = (List, movie) => {

@@ -258,7 +258,7 @@ export function stream(res, filePath, start, end,contentType){
     let stream = fs.createReadStream(filePath, {
         start: start,
         end: end
-        });
+    });
     stream.on('open',() => {
         stream.pipe(res);
     })
@@ -299,6 +299,7 @@ export function downloadTorrent(req,res,torrent){
                     const start = parseInt(parts[0], 10);
                     const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
                     const chunksize = (end - start)+ 1 ;
+                    console.log(chunksize)
                     const head = {
                         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                         'Accept-Ranges': 'bytes',

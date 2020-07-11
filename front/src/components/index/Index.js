@@ -21,7 +21,6 @@ const Index = () => {
     useEffect(() => {
         const fetchPopular = async() => {
             const popularMovies = await axios.get('https://api.themoviedb.org/3/movie/popular?api_key=' + moviedbAPI_KEY);
-            console.log(popularMovies)
             popularMovies.data.results.forEach(movie => {
                 searchPopularMovie(movie.title)
             });
@@ -30,6 +29,7 @@ const Index = () => {
         if (fetchpop === true){
             fetchPopular()
         }
+        // eslint-disable-next-line
     }, [])
 
     return (
