@@ -1,3 +1,5 @@
+import { pipeline } from 'stream';
+
 const axios = require('axios').default;
 const User = require('../models/user');
 const Movie = require('../models/movie');
@@ -228,35 +230,64 @@ export async function getSingleMovie(req,res){
 }
 
 export async function convertMovieTypeAndStream(res, filePath, start, end){
-    // var outStream = fs.createReadStream(rootPath+'/movies/converted.mp4');
-    let stream = fs.createReadStream(filePath
+    const stream = fs.createReadStream(filePath);
+    var newStream = ffmpeg(filePath)
+    .outputOptions('-movflags frag_keyframe+faststart')
+    .videoCodec('libx264')
+    .audioCodec('copy')
+    .format('mp4')
+    .on('end', function() {
+      console.log('file has been converted succesfully');
+    })
+    .on('progress', function(progress) {
+      console.log('Processing: ' + progress.percent + '% done');
+    })
+    .on('error', function(err) {
+      console.log('an error happened: ' + err.message);
+    })
+    .pipe(res);
+  
+    //   pump(newStream, res);
+    // var outStream = fs.createWriteStream(rootPath+'/movies/converted.mp4');
+    // ffmpeg(filePath)
+    //     .outputFormat("webm")
+    // let stream = fs.createReadStream(filePath
     //     ,{
     //         start: start,
     //         end: end
     // }
-    )
-    stream.on("open", ()=> {
-        let output = ffmpeg(stream)
-        .outputFormat("mp4")
-        .outputOptions([ '-movflags faststart+frag_keyframe','-cpu-used 2', '-deadline realtime', '-threads 4' ])
+    // )
+    // stream.on("open", ()=> {
+    //     let output = ffmpeg(stream)
+    //     .outputFormat("webm")
+    //     // .outputOptions(
+    //     //     [ 
+    //     //         '-b:v',
+    //     //         // '-maxrate 1000k',
+    //     //         // '-bufsize 2000k', 
+    //     //         // '-movflags frag_keyframe',
+    //     //         // '-cpu-used 2', 
+    //     //         // '-deadline realtime', 
+    //     //         // '-threads 4',
+    //     //     ]
+    //     // )
         
-        // .outputOptions('-movflags frag_keyframe')
-        // .videoCodec('libx264')
-        // .audioCodec('libmp3lame')
-        // .audioCodec('copy')
+    //     .outputOptions('-movflags frag_keyframe+faststart')
+    //     // .videoCodec('libx264')
+    //     // .audioCodec('libmp3lame')
+    //     // .audioCodec('copy')
         
-        .on("start", commandLine => {
-            console.log('Spawned Ffmpeg with command: ' + commandLine);
-        })
-        .on('error', err => {
-            console.log('An error occurred: ' + err.message);
-        })
-        
-        .on('end', () => {
-            console.log('Processing finished !');
-        })
-        .stream().pipe(res, { end: true})
-    })
+    //     .on("start", commandLine => {
+    //         console.log('Spawned Ffmpeg with command: ' + commandLine);
+    //     })
+    //     .on('error', err => {
+    //         console.log('An error occurred: ' + err.message);
+    //     })
+    //     .on('end', () => {
+    //         console.log('Processing finished !');
+    //     })
+    //     pump(output, res);
+    // })
 
        
        
@@ -350,13 +381,13 @@ export function downloadTorrent(req,res,torrent){
                     const start = parseInt(parts[0], 10);
                     const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
                     const chunksize = (end - start)+ 1 ;
-                    console.log(chunksize)
                     const head = {
+                        'Transfer-Encoding':'chunked',
                         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                         'Accept-Ranges': 'bytes',
                         // 'Content-Length': chunksize,
                         'Content-Type': contentType,
-                        Connection: "keep-alive"
+                        "Connection": "keep-alive"
                     }
                     res.writeHead(206, head);
                     
@@ -465,11 +496,12 @@ export function streamMovie(req,res){
                                 const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
                                 const chunksize = (end - start) + 1;
                                 const head = {
+                                    'Transfer-Encoding':'chunked',
                                     'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                                     'Accept-Ranges': 'bytes',
                                     // 'Content-Length': chunksize,
                                     'Content-Type': contentType,
-                                    Connection: "keep-alive"
+                                    "Connection": "keep-alive"
                                 }
                                 res.writeHead(206, head);
                                 stream(res, filePath, start, end,contentType);
