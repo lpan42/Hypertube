@@ -228,31 +228,81 @@ export async function getSingleMovie(req,res){
 }
 
 export async function convertMovieTypeAndStream(res, filePath, start, end){
+    // var outStream = fs.createReadStream(rootPath+'/movies/converted.mp4');
     let stream = fs.createReadStream(filePath
-        // , {
-        // start: start,
-        // end: end
-        // }
-    );
-    stream.on('open',() => {
-        const output = ffmpeg(stream).format("mp4")
-        .outputOptions('-movflags frag_keyframe')
-        .audioCodec('copy')
+    //     ,{
+    //         start: start,
+    //         end: end
+    // }
+    )
+    stream.on("open", ()=> {
+        let output = ffmpeg(stream)
+        .outputFormat("mp4")
+        .outputOptions([ '-movflags faststart+frag_keyframe','-cpu-used 2', '-deadline realtime', '-threads 4' ])
+        
+        // .outputOptions('-movflags frag_keyframe')
+        // .videoCodec('libx264')
+        // .audioCodec('libmp3lame')
+        // .audioCodec('copy')
+        
         .on("start", commandLine => {
             console.log('Spawned Ffmpeg with command: ' + commandLine);
         })
         .on('error', err => {
             console.log('An error occurred: ' + err.message);
         })
+        
         .on('end', () => {
             console.log('Processing finished !');
         })
-        output.pipe(res);
+        .stream().pipe(res, { end: true})
     })
+
+       
+       
+
+    // var stream  = fs.createWriteStream(rootPath+"/movies/converted.mp4");
+    // ffmpeg(fs.createReadStream(filePath))
+    //     // .output(stream, { end:true })
+    //     .outputFormat("mp4")
+    //     .videoCodec('libx264')
+    //     .audioCodec('aac')
+    //     .outputOptions('-movflags frag_keyframe+faststart+empty_moov')
+    //     .on("start", commandLine => {
+    //         console.log('Spawned Ffmpeg with command: ' + commandLine);
+    //     })
+    //     .on('error', err => {
+    //         console.log('An error occurred: ' + err.message);
+    //     })
+    //     .on('end', () => {
+    //         console.log('Processing finished !');
+    //     })
+    //     .pipe(res, {end:true});
+    // let stream = fs.createReadStream(filePath);
+    // // stream.on("open", ()=>{
+    // const output = ffmpeg(fs.createReadStream(filePath))
+    //     .outputFormat("mp4")
+    //     .videoCodec('libx264')
+    //     .audioCodec('aac')
+    //     .outputOptions('-movflags frag_keyframe+faststart+empty_moov')
+       
+    //     .on("start", commandLine => {
+    //         console.log('Spawned Ffmpeg with command: ' + commandLine);
+    //     })
+    //     .on('error', err => {
+    //         console.log('An error occurred: ' + err.message);
+    //     })
+    //     .on('end', () => {
+    //         console.log('Processing finished !');
+    //     })
+    //     .pipe(res)
+    //     // .pipe(res);
+    // // pump(output,res);
+    // // })
 }
 
 export function stream(res, filePath, start, end,contentType){
-    if(contentType ==="video/webm" ){
+    if( contentType === 'video/webm'){
         convertMovieTypeAndStream(res, filePath, start, end)
     }
     let stream = fs.createReadStream(filePath, {
@@ -260,9 +310,10 @@ export function stream(res, filePath, start, end,contentType){
         end: end
     });
     stream.on('open',() => {
-        stream.pipe(res);
+       pump(stream, res);
     })
     stream.on('error',(err)=>{
+        console.log(err)
         res.end(err);
     })
 } 
@@ -274,14 +325,14 @@ export function downloadTorrent(req,res,torrent){
     const engine = torrentStream(torrent.url,{
         connections: 100,
         uploads: 10,
+        verify: true,
         path: rootPath + '/movies',
     });
 
-    engine.on('ready', function() {
-        engine.files.forEach(function(file) {
+    engine.on('ready', () => {
+        engine.files.forEach((file) => {
             const ext = path.extname(file.path);
             if(ext === '.mp4' || ext === '.avi' || ext === '.mkv' || ext === '.ogg'){
-// console.log(ext)
                 file.select();
                 fileSize = file.length;
                 filePath = '/movies/' + file.path;
@@ -293,7 +344,7 @@ export function downloadTorrent(req,res,torrent){
                     else 
                         contentType = 'video/webm';
                 const range = req.headers.range;
-                // console.log("range:" + range);
+                console.log("@@@range:" + range);
                 if (range) {
                     const parts = range.replace(/bytes=/, "").split("-");
                     const start = parseInt(parts[0], 10);
@@ -303,8 +354,9 @@ export function downloadTorrent(req,res,torrent){
                     const head = {
                         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                         'Accept-Ranges': 'bytes',
-                        'Content-Length': chunksize,
+                        // 'Content-Length': chunksize,
                         'Content-Type': contentType,
+                        Connection: "keep-alive"
                     }
                     res.writeHead(206, head);
                     
@@ -317,7 +369,7 @@ export function downloadTorrent(req,res,torrent){
                     }, checkFileExist);
                 } else {
                     const head = {
-                        'Content-Length': fileSize,
+                        // 'Content-Length': fileSize,
                         'Content-Type': contentType,
                     }
                     res.writeHead(200, head);
@@ -326,7 +378,7 @@ export function downloadTorrent(req,res,torrent){
                         const fileExists = fs.existsSync(rootPath + filePath);
                         if (fileExists) {
                             clearInterval(timeout);
-                            stream(res, rootPath + filePath, 0, fileSize,contentType);
+                            stream(res, rootPath + filePath, 0, fileSize-1,contentType);
                         }
                     }, timeout);
                 }
@@ -415,18 +467,19 @@ export function streamMovie(req,res){
                                 const head = {
                                     'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                                     'Accept-Ranges': 'bytes',
-                                    'Content-Length': chunksize,
+                                    // 'Content-Length': chunksize,
                                     'Content-Type': contentType,
+                                    Connection: "keep-alive"
                                 }
                                 res.writeHead(206, head);
                                 stream(res, filePath, start, end,contentType);
                             } else {
                                 const head = {
-                                    'Content-Length': fileSize,
+                                    // 'Content-Length': fileSize,
                                     'Content-Type': contentType,
                                 }
                                 res.writeHead(200, head);
-                                stream(res, filePath, 0, fileSize,contentType);
+                                stream(res, filePath, 0, fileSize-1,contentType);
                             }
                         }
                         
