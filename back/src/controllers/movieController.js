@@ -230,16 +230,16 @@ export async function getSingleMovie(req,res){
 }
 
 export async function convertMovieTypeAndStream(res, filePath, start, end){
-    var newStream = ffmpeg(filePath)
+    var newStream = ffmpeg(fs.createReadStream(filePath))
         .outputOptions([
             '-movflags frag_keyframe+empty_moov',
             '-cpu-used 2',
             '-threads 4',
             '-preset veryfast',
         ])
-        // .videoCodec('libx264')
-        // .audioCodec('libmp3lame')
-        .format('mp4')
+        .videoCodec('libx264')
+        .audioCodec('libmp3lame')
+        .format('webm')
     .on('end', function() {
       console.log('file has been converted succesfully');
     })
@@ -249,7 +249,7 @@ export async function convertMovieTypeAndStream(res, filePath, start, end){
     .on('error', function(err) {
       console.log('an error happened: ' + err.message);
     })
-    .pipe(res,{end:true});
+    .pipe(res);
   
     //   pump(newStream, res);
     // var outStream = fs.createWriteStream(rootPath+'/movies/converted.mp4');
