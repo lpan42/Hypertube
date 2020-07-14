@@ -229,27 +229,40 @@ export async function getSingleMovie(req,res){
     })
 }
 
-export async function convertMovieTypeAndStream(res, filePath, start, end){
-    var newStream = ffmpeg(fs.createReadStream(filePath))
-        .outputOptions([
-            '-movflags frag_keyframe+empty_moov',
-            '-cpu-used 2',
-            '-threads 4',
-            '-preset veryfast',
-        ])
-        .videoCodec('libx264')
-        .audioCodec('libmp3lame')
-        .format('webm')
-    .on('end', function() {
-      console.log('file has been converted succesfully');
+export async function convertMovieTypeAndStream(res, filePath, start, end){ 
+    let stream = fs.createReadStream(filePath
+        // , {
+        //     start: start,
+        //     end: end
+        // }
+    );
+    stream.on('open',() => {
+        let output = new ffmpeg(stream)
+            .videoCodec('libx264')
+            .audioCodec('libmp3lame')
+            .format('webm')
+            .outputOptions([
+                '-movflags frag_keyframe+empty_moov',
+                '-cpu-used 2',
+                '-threads 4',
+                '-preset veryfast',
+            ])
+            .on('progress', (progress) => {
+                console.log('Processing: ' + progress.percent + '% done');
+            })
+            .on('error', (err) => {
+                console.log('an error happened: ' + err.message);
+            })
+            .on('end', () => {
+                console.log('file has been converted succesfully');
+            })
+            output.pipe(res)
     })
-    .on('progress', function(progress) {
-      console.log('Processing: ' + progress.percent + '% done');
+    stream.on('error',(err)=>{
+        console.log(err)
+        res.end(err);
     })
-    .on('error', function(err) {
-      console.log('an error happened: ' + err.message);
-    })
-    .pipe(res);
+
   
     //   pump(newStream, res);
     // var outStream = fs.createWriteStream(rootPath+'/movies/converted.mp4');
@@ -392,7 +405,7 @@ export function downloadTorrent(req,res,torrent){
                         // 'Transfer-Encoding':'chunked',
                         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                         'Accept-Ranges': 'bytes',
-                        'Content-Length': chunksize,
+                        // 'Content-Length': chunksize,
                         'Content-Type': contentType,
                         "Connection": "keep-alive"
                     }
