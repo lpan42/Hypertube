@@ -230,12 +230,16 @@ export async function getSingleMovie(req,res){
 }
 
 export async function convertMovieTypeAndStream(res, filePath, start, end){
-    const stream = fs.createReadStream(filePath);
     var newStream = ffmpeg(filePath)
-    .outputOptions('-movflags frag_keyframe+faststart')
-    .videoCodec('libx264')
-    .audioCodec('copy')
-    .format('mp4')
+        .outputOptions([
+            '-movflags frag_keyframe+empty_moov',
+            '-cpu-used 2',
+            '-threads 4',
+            '-preset veryfast',
+        ])
+        // .videoCodec('libx264')
+        // .audioCodec('libmp3lame')
+        .format('mp4')
     .on('end', function() {
       console.log('file has been converted succesfully');
     })
@@ -245,7 +249,7 @@ export async function convertMovieTypeAndStream(res, filePath, start, end){
     .on('error', function(err) {
       console.log('an error happened: ' + err.message);
     })
-    .pipe(res);
+    .pipe(res,{end:true});
   
     //   pump(newStream, res);
     // var outStream = fs.createWriteStream(rootPath+'/movies/converted.mp4');
@@ -378,14 +382,17 @@ export function downloadTorrent(req,res,torrent){
                 console.log("@@@range:" + range);
                 if (range) {
                     const parts = range.replace(/bytes=/, "").split("-");
-                    const start = parseInt(parts[0], 10);
+                    let start = parseInt(parts[0], 10);
                     const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
+                    // if(start >= end)
+                    //     start = 0;
+                    // console.log(start,end)
                     const chunksize = (end - start)+ 1 ;
                     const head = {
-                        'Transfer-Encoding':'chunked',
+                        // 'Transfer-Encoding':'chunked',
                         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                         'Accept-Ranges': 'bytes',
-                        // 'Content-Length': chunksize,
+                        'Content-Length': chunksize,
                         'Content-Type': contentType,
                         "Connection": "keep-alive"
                     }
@@ -492,11 +499,14 @@ export function streamMovie(req,res){
                             const range = req.headers.range;
                             if (range) {
                                 const parts = range.replace(/bytes=/, "").split("-");
-                                const start = parseInt(parts[0], 10);
+                                let start = parseInt(parts[0], 10);
                                 const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
                                 const chunksize = (end - start) + 1;
+                                // console.log(start, end )
+                                // if(start >= end)
+                                //     start = 0;
                                 const head = {
-                                    'Transfer-Encoding':'chunked',
+                                    // 'Transfer-Encoding':'chunked',
                                     'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                                     'Accept-Ranges': 'bytes',
                                     // 'Content-Length': chunksize,

@@ -3,7 +3,6 @@ import UserContext from '../../contexts/user/userContext';
 import Search from './Search';
 import axios from '../../../../back/node_modules/axios';
 import MovieContext from '../../contexts/movie/movieContext';
-import moviedbAPI_KEY from '../../utils/moviedbAPI_KEY'
 
 const Index = () => {
     const userContext = useContext(UserContext);
@@ -20,7 +19,7 @@ const Index = () => {
 
     useEffect(() => {
         const fetchPopular = async() => {
-            const popularMovies = await axios.get('https://api.themoviedb.org/3/movie/popular?api_key=' + moviedbAPI_KEY);
+            const popularMovies = await axios.get('https://api.themoviedb.org/3/movie/popular?api_key=84a478cbc28857a10ea66f63b40ecd28');
             popularMovies.data.results.forEach(movie => {
                 searchPopularMovie(movie.title)
             });
