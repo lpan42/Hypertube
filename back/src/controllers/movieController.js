@@ -1,3 +1,5 @@
+import { pipeline } from 'stream';
+
 const axios = require('axios').default;
 const User = require('../models/user');
 const Movie = require('../models/movie');
@@ -228,41 +230,48 @@ export async function getSingleMovie(req,res){
 }
 
 export async function convertMovieTypeAndStream(res, filePath, start, end){
-    let stream = fs.createReadStream(filePath
-        // , {
-        // start: start,
-        // end: end
-        // }
-    );
-    stream.on('open',() => {
-        const output = ffmpeg(stream).format("mp4")
-        .outputOptions('-movflags frag_keyframe')
-        .audioCodec('copy')
-        .on("start", commandLine => {
-            console.log('Spawned Ffmpeg with command: ' + commandLine);
+    let stream = fs.createReadStream(filePath);
+    let output = new ffmpeg(stream)
+    .videoCodec("libvpx")
+    .videoBitrate(1024)
+    .audioCodec("libopus")
+    .audioBitrate(128)
+        .format('webm')
+        .outputOptions([
+            '-movflags frag_keyframe+empty_moov',
+            "-crf 30",
+            "-deadline realtime",
+            '-threads 4',
+            '-preset ultrafast',
+        ])
+        .on('start', () => {
+            console.log('conversion started');
         })
-        .on('error', err => {
-            console.log('An error occurred: ' + err.message);
+        .on('error', (err) => {
+            console.log('an error happened: ' + err.message);
         })
         .on('end', () => {
-            console.log('Processing finished !');
+            console.log('file has been converted succesfully');
         })
-        output.pipe(res);
-    })
+        .pipe(res)
 }
 
 export function stream(res, filePath, start, end,contentType){
-    if(contentType ==="video/webm" ){
-        convertMovieTypeAndStream(res, filePath, start, end)
-    }
+    // if( contentType === 'video/webm'){
+    //     convertMovieTypeAndStream(res, filePath, start, end)
+    // }
     let stream = fs.createReadStream(filePath, {
         start: start,
         end: end
-        });
+    });
     stream.on('open',() => {
-        stream.pipe(res);
+        if( contentType === 'video/webm'){
+          convertMovieTypeAndStream(res, filePath, start, end)
+        }else
+            pump(stream, res);
     })
     stream.on('error',(err)=>{
+        console.log(err)
         res.end(err);
     })
 } 
@@ -274,14 +283,14 @@ export function downloadTorrent(req,res,torrent){
     const engine = torrentStream(torrent.url,{
         connections: 100,
         uploads: 10,
+        verify: true,
         path: rootPath + '/movies',
     });
 
-    engine.on('ready', function() {
-        engine.files.forEach(function(file) {
+    engine.on('ready', () => {
+        engine.files.forEach((file) => {
             const ext = path.extname(file.path);
             if(ext === '.mp4' || ext === '.avi' || ext === '.mkv' || ext === '.ogg'){
-// console.log(ext)
                 file.select();
                 fileSize = file.length;
                 filePath = '/movies/' + file.path;
@@ -293,17 +302,22 @@ export function downloadTorrent(req,res,torrent){
                     else 
                         contentType = 'video/webm';
                 const range = req.headers.range;
-                // console.log("range:" + range);
+                console.log("@@@range:" + range);
                 if (range) {
                     const parts = range.replace(/bytes=/, "").split("-");
-                    const start = parseInt(parts[0], 10);
+                    let start = parseInt(parts[0], 10);
                     const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
+                    // if(start >= end)
+                    //     start = 0;
+                    // console.log(start,end)
                     const chunksize = (end - start)+ 1 ;
                     const head = {
+                        // 'Transfer-Encoding':'chunked',
                         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                         'Accept-Ranges': 'bytes',
-                        'Content-Length': chunksize,
+                        // 'Content-Length': chunksize,
                         'Content-Type': contentType,
+                        "Connection": "keep-alive"
                     }
                     res.writeHead(206, head);
                     
@@ -316,7 +330,7 @@ export function downloadTorrent(req,res,torrent){
                     }, checkFileExist);
                 } else {
                     const head = {
-                        'Content-Length': fileSize,
+                        // 'Content-Length': fileSize,
                         'Content-Type': contentType,
                     }
                     res.writeHead(200, head);
@@ -325,7 +339,7 @@ export function downloadTorrent(req,res,torrent){
                         const fileExists = fs.existsSync(rootPath + filePath);
                         if (fileExists) {
                             clearInterval(timeout);
-                            stream(res, rootPath + filePath, 0, fileSize,contentType);
+                            stream(res, rootPath + filePath, 0, fileSize-1,contentType);
                         }
                     }, timeout);
                 }
@@ -408,24 +422,29 @@ export function streamMovie(req,res){
                             const range = req.headers.range;
                             if (range) {
                                 const parts = range.replace(/bytes=/, "").split("-");
-                                const start = parseInt(parts[0], 10);
+                                let start = parseInt(parts[0], 10);
                                 const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
                                 const chunksize = (end - start) + 1;
+                                // console.log(start, end )
+                                // if(start >= end)
+                                //     start = 0;
                                 const head = {
+                                    // 'Transfer-Encoding':'chunked',
                                     'Content-Range': `bytes ${start}-${end}/${fileSize}`,
                                     'Accept-Ranges': 'bytes',
-                                    'Content-Length': chunksize,
+                                    // 'Content-Length': chunksize,
                                     'Content-Type': contentType,
+                                    "Connection": "keep-alive"
                                 }
                                 res.writeHead(206, head);
                                 stream(res, filePath, start, end,contentType);
                             } else {
                                 const head = {
-                                    'Content-Length': fileSize,
+                                    // 'Content-Length': fileSize,
                                     'Content-Type': contentType,
                                 }
                                 res.writeHead(200, head);
-                                stream(res, filePath, 0, fileSize,contentType);
+                                stream(res, filePath, 0, fileSize-1,contentType);
                             }
                         }
                         
@@ -525,7 +544,7 @@ export async function searchMovie(req, res){
         }else{
             return (res.status(200).json({data: result}));
         }
-    }).sort(criteria).skip((req.body.page - 1) * 30).limit(30);
+    }).sort(criteria).limit(30 * req.body.page);
 }
 
 export async function fetchPageNum(req, res){
@@ -545,4 +564,13 @@ export async function fetchPageNum(req, res){
             return (res.status(200).json({data: result}));
         }
     });
+}
+
+export async function fetchPopular(req, res){
+    const result = Movie.findOne({Title: req.body.title}, (err, result) => {
+        if(err || result === null){
+            return res.status(400).json({ error:"No available movie resource found" })
+        }
+        return (res.status(200).json({data: result}));
+    })
 }

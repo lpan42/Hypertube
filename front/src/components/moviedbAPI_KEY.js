@@ -1,1 +1,0 @@
-export const moviedbAPI_KEY = "84a478cbc28857a10ea66f63b40ecd28";

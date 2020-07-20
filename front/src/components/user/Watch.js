@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
         flexWrap:"wrap",
         // justifyContent:"center",
         overflow: "auto",
-        height:"500px",
+        maxHeight:"500px",
     },
     card: {
         margin:"5px",

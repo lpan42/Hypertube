@@ -6,7 +6,8 @@ import setAuthToken from '../../utils/setAuthToken';
 import {    
     FETCH_MOVIES,
     FETCH_ERROR,
-    FETCH_NBPAGE
+    FETCH_NBPAGE,
+    POPULAR_MOVIES
 } from '../types';
 
 
@@ -14,10 +15,33 @@ const MovieState = props => {
     const initialState = {
         loading: true,
         movies: [],
-        nbpages: null
+        nbpages: null,
+        fetchpop: true
     }
 
     const [state, dispatch] = useReducer(MovieReducer, initialState);
+
+    const searchPopularMovie = async (movieTitle) => {
+        setAuthToken(localStorage.token);
+        try{
+            const config = {
+                headers: {'Content-Type': 'application/json'}
+            }
+            var data = {
+                title: movieTitle
+            }; 
+            const result = await axios.post(`/movie/searchpopular`, data, config);
+            dispatch({
+                type: POPULAR_MOVIES,
+                payload: result.data.data
+            })
+        } catch (err) {
+            dispatch({
+                type: FETCH_ERROR, 
+                payload: err.response
+            })
+        }
+    }
 
     const searchByKeyword = async (keyword, genre, yearrange, ratingrange, page, sortBy) => {
         setAuthToken(localStorage.token);
@@ -36,7 +60,7 @@ const MovieState = props => {
             const result = await axios.post(`/movie/searchmovie`, data, config);
             dispatch({
                 type: FETCH_MOVIES,
-                payload: result.data
+                payload: result.data.data
             })
             const result_page_nb = await axios.post('/movie/fetchpagenum', data, config);
             dispatch({
@@ -59,6 +83,8 @@ const MovieState = props => {
                 loading: state.loading,
                 nbpages: Math.ceil(state.nbpages / 30),
                 searchByKeyword,
+                searchPopularMovie,
+                fetchpop: state.fetchpop
             }}
         >
         {props.children}
