@@ -229,136 +229,46 @@ export async function getSingleMovie(req,res){
     })
 }
 
-export async function convertMovieTypeAndStream(res, filePath, start, end){ 
-    let stream = fs.createReadStream(filePath
-        // , {
-        //     start: start,
-        //     end: end
-        // }
-    );
-    stream.on('open',() => {
-        let output = new ffmpeg(stream)
-            .videoCodec('libx264')
-            .audioCodec('libmp3lame')
-            .format('webm')
-            .outputOptions([
-                '-movflags frag_keyframe+empty_moov',
-                '-cpu-used 2',
-                '-threads 4',
-                '-preset veryfast',
-            ])
-            .on('progress', (progress) => {
-                console.log('Processing: ' + progress.percent + '% done');
-            })
-            .on('error', (err) => {
-                console.log('an error happened: ' + err.message);
-            })
-            .on('end', () => {
-                console.log('file has been converted succesfully');
-            })
-            output.pipe(res)
-    })
-    stream.on('error',(err)=>{
-        console.log(err)
-        res.end(err);
-    })
-
-  
-    //   pump(newStream, res);
-    // var outStream = fs.createWriteStream(rootPath+'/movies/converted.mp4');
-    // ffmpeg(filePath)
-    //     .outputFormat("webm")
-    // let stream = fs.createReadStream(filePath
-    //     ,{
-    //         start: start,
-    //         end: end
-    // }
-    // )
-    // stream.on("open", ()=> {
-    //     let output = ffmpeg(stream)
-    //     .outputFormat("webm")
-    //     // .outputOptions(
-    //     //     [ 
-    //     //         '-b:v',
-    //     //         // '-maxrate 1000k',
-    //     //         // '-bufsize 2000k', 
-    //     //         // '-movflags frag_keyframe',
-    //     //         // '-cpu-used 2', 
-    //     //         // '-deadline realtime', 
-    //     //         // '-threads 4',
-    //     //     ]
-    //     // )
-        
-    //     .outputOptions('-movflags frag_keyframe+faststart')
-    //     // .videoCodec('libx264')
-    //     // .audioCodec('libmp3lame')
-    //     // .audioCodec('copy')
-        
-    //     .on("start", commandLine => {
-    //         console.log('Spawned Ffmpeg with command: ' + commandLine);
-    //     })
-    //     .on('error', err => {
-    //         console.log('An error occurred: ' + err.message);
-    //     })
-    //     .on('end', () => {
-    //         console.log('Processing finished !');
-    //     })
-    //     pump(output, res);
-    // })
-
-       
-       
-
-    // var stream  = fs.createWriteStream(rootPath+"/movies/converted.mp4");
-    // ffmpeg(fs.createReadStream(filePath))
-    //     // .output(stream, { end:true })
-    //     .outputFormat("mp4")
-    //     .videoCodec('libx264')
-    //     .audioCodec('aac')
-    //     .outputOptions('-movflags frag_keyframe+faststart+empty_moov')
-    //     .on("start", commandLine => {
-    //         console.log('Spawned Ffmpeg with command: ' + commandLine);
-    //     })
-    //     .on('error', err => {
-    //         console.log('An error occurred: ' + err.message);
-    //     })
-    //     .on('end', () => {
-    //         console.log('Processing finished !');
-    //     })
-    //     .pipe(res, {end:true});
-    // let stream = fs.createReadStream(filePath);
-    // // stream.on("open", ()=>{
-    // const output = ffmpeg(fs.createReadStream(filePath))
-    //     .outputFormat("mp4")
-    //     .videoCodec('libx264')
-    //     .audioCodec('aac')
-    //     .outputOptions('-movflags frag_keyframe+faststart+empty_moov')
-       
-    //     .on("start", commandLine => {
-    //         console.log('Spawned Ffmpeg with command: ' + commandLine);
-    //     })
-    //     .on('error', err => {
-    //         console.log('An error occurred: ' + err.message);
-    //     })
-    //     .on('end', () => {
-    //         console.log('Processing finished !');
-    //     })
-    //     .pipe(res)
-    //     // .pipe(res);
-    // // pump(output,res);
-    // // })
+export async function convertMovieTypeAndStream(res, filePath, start, end){
+    let stream = fs.createReadStream(filePath);
+    let output = new ffmpeg(stream)
+    .videoCodec("libvpx")
+    .videoBitrate(1024)
+    .audioCodec("libopus")
+    .audioBitrate(128)
+        .format('webm')
+        .outputOptions([
+            '-movflags frag_keyframe+empty_moov',
+            "-crf 30",
+            "-deadline realtime",
+            '-threads 4',
+            '-preset ultrafast',
+        ])
+        .on('start', () => {
+            console.log('conversion started');
+        })
+        .on('error', (err) => {
+            console.log('an error happened: ' + err.message);
+        })
+        .on('end', () => {
+            console.log('file has been converted succesfully');
+        })
+        .pipe(res)
 }
 
 export function stream(res, filePath, start, end,contentType){
-    if( contentType === 'video/webm'){
-        convertMovieTypeAndStream(res, filePath, start, end)
-    }
+    // if( contentType === 'video/webm'){
+    //     convertMovieTypeAndStream(res, filePath, start, end)
+    // }
     let stream = fs.createReadStream(filePath, {
         start: start,
         end: end
     });
     stream.on('open',() => {
-       pump(stream, res);
+        if( contentType === 'video/webm'){
+          convertMovieTypeAndStream(res, filePath, start, end)
+        }else
+            pump(stream, res);
     })
     stream.on('error',(err)=>{
         console.log(err)
