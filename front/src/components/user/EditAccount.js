@@ -71,7 +71,7 @@ const EditAccount = () => {
                 <form className={classes.form} onSubmit={onSubmit}>
                     <UploadAvatar updateAvatar={setAvatar} lang={lang}/>
                     <br></br>
-                    <TextField id="firstname" label={lang.account.username} style = {{width: 110}}
+                    <TextField id="firstname" label={lang.account.firstname} style = {{width: 110}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">
@@ -94,7 +94,7 @@ const EditAccount = () => {
                         onChange={e => user.data.lastname = e.target.value.toLowerCase()}
                     />
                     <br></br>
-                    <TextField id="username" label={lang.account.lastname} style = {{width: 240}}
+                    <TextField id="username" label={lang.account.username} style = {{width: 240}}
                         InputProps={{
                             startAdornment: (
                             <InputAdornment position="start">

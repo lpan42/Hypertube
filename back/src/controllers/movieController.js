@@ -257,9 +257,6 @@ export async function convertMovieTypeAndStream(res, filePath, start, end){
 }
 
 export function stream(res, filePath, start, end,contentType){
-    // if( contentType === 'video/webm'){
-    //     convertMovieTypeAndStream(res, filePath, start, end)
-    // }
     let stream = fs.createReadStream(filePath, {
         start: start,
         end: end
@@ -302,14 +299,10 @@ export function downloadTorrent(req,res,torrent){
                     else 
                         contentType = 'video/webm';
                 const range = req.headers.range;
-                console.log("@@@range:" + range);
                 if (range) {
                     const parts = range.replace(/bytes=/, "").split("-");
                     let start = parseInt(parts[0], 10);
                     const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
-                    // if(start >= end)
-                    //     start = 0;
-                    // console.log(start,end)
                     const chunksize = (end - start)+ 1 ;
                     const head = {
                         // 'Transfer-Encoding':'chunked',
@@ -425,9 +418,6 @@ export function streamMovie(req,res){
                                 let start = parseInt(parts[0], 10);
                                 const end = parts[1] ? parseInt(parts[1], 10): fileSize - 1;
                                 const chunksize = (end - start) + 1;
-                                // console.log(start, end )
-                                // if(start >= end)
-                                //     start = 0;
                                 const head = {
                                     // 'Transfer-Encoding':'chunked',
                                     'Content-Range': `bytes ${start}-${end}/${fileSize}`,

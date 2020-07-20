@@ -196,7 +196,7 @@ export async function resetpwd(req,res){
         email = checkUsername.email;
         username = checkUsername.username;
     }
-    if(!email){
+    if(!email || !username){
         return res.status(400).json({ error: "You account was authoritized and created from other website, and your registed email is empty. Please try to login with google/github/42." });
     }
     const resetpwd_link = crypto.randomBytes(10).toString('hex');
