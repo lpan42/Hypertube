@@ -19,6 +19,10 @@ const oAuthIds = {
     OpenSubtitles: {
       username: 'lpan42',
       password: 'Ashley0930',
+    },
+    gmail:{
+      user: 'ashley.lepan@gmail.com',
+      password: 'Ashley0930' 
     }
   };
   

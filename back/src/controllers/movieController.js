@@ -1,5 +1,3 @@
-import { pipeline } from 'stream';
-
 const axios = require('axios').default;
 const User = require('../models/user');
 const Movie = require('../models/movie');

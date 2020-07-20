@@ -1,9 +1,11 @@
 const nodemailer = require("nodemailer");
+const config = require('../config/oAuthIds');
+
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'ashley.lepan@gmail.com',
-    pass: 'Ashley0930' 
+    user: config.gmail.user,
+    pass: config.gmail.password
   }
 });
 // const transporter = nodemailer.createTransport({
