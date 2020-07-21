@@ -227,9 +227,9 @@ export async function getSingleMovie(req,res){
     })
 }
 
-export async function convertMovieTypeAndStream(res, filePath, start, end){
-    let stream = fs.createReadStream(filePath);
-    let output = new ffmpeg(stream)
+export async function convertMovieTypeAndStream(res, stream){
+    // let stream = fs.createReadStream(filePath);
+    ffmpeg(stream)
     .videoCodec("libvpx")
     .videoBitrate(1024)
     .audioCodec("libopus")
@@ -261,7 +261,7 @@ export function stream(res, filePath, start, end,contentType){
     });
     stream.on('open',() => {
         if( contentType === 'video/webm'){
-          convertMovieTypeAndStream(res, filePath, start, end)
+          convertMovieTypeAndStream(res, stream)
         }else
             pump(stream, res);
     })
