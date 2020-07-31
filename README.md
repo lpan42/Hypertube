@@ -68,4 +68,5 @@ A PopcornTime-like webapp. Search and stream movies using BitTorrent protocol
 * Run `npm install` in each back and front directory
 * DB:
     * Make sure mongodb community service is running `brew services start mongodb-community@4.2`
+    * we made a scrapper to scrap movies from YTS and popcorn time, run `node ./back/src/config/scraper.js` from the root
 * start project: cd to the back directory, run `npm start` 
