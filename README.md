@@ -24,7 +24,7 @@ A PopcornTime-like webapp. Search and stream movies using BitTorrent protocol
     * Verify if user fills all fields and if inputs are the right format as required
 ![Register](https://user-images.githubusercontent.com/45174444/89025004-63837900-d326-11ea-8903-1b2f0f149786.png)
 * Login with username or email and the right pwd.
-![login](https://user-images.githubusercontent.com/45174444/82326550-502a6800-99dd-11ea-9607-d7b280468d41.png)
+![login](https://user-images.githubusercontent.com/45174444/89027190-5cf70080-d32a-11ea-8fc8-25ec87dc341d.png)
 * An e-mail with an unique link to re-initialize user's password if he request to reset the pwd.
 * The Index Page
     * Auto load popular movies reccomendation 
